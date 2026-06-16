@@ -8,52 +8,53 @@ class TempleIllustration extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 24),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceDim.withAlpha(100),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: AppColors.divider,
-          width: 1,
+    return Center(
+      child: Container(
+        height: 240,
+        width: 240,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(15),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: Image.asset(
-          'assets/images/beit_hamikdash.png',
-          height: 200,
-          fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) {
-            // Fallback if image not yet generated
-            return Container(
-              height: 200,
-              decoration: BoxDecoration(
-                color: AppColors.surfaceDim,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.account_balance_rounded,
-                      size: 64,
-                      color: AppColors.primary.withAlpha(120),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'בית המקדש',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppColors.primary,
-                          ),
-                    ),
-                  ],
+        child: ClipOval(
+          child: Image.asset(
+            'assets/images/beit_hamikdash.png',
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              // Fallback if image not yet generated
+              return Container(
+                decoration: const BoxDecoration(
+                  color: AppColors.surfaceDim,
+                  shape: BoxShape.circle,
                 ),
-              ),
-            );
-          },
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.account_balance_rounded,
+                        size: 64,
+                        color: AppColors.primary.withAlpha(120),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'בית המקדש',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: AppColors.primary,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
