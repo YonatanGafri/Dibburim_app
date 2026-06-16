@@ -22,5 +22,5 @@ class AppConstants {
 
   /// Audio asset paths.
   static const String ambientAudioPath = 'audio/ambient.mp3';
-  static const String chimeAudioPath = 'audio/chime.mp3';
+  static const String chimeAudioPath = 'audio/chime.wav';
 }

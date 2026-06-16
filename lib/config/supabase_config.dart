@@ -4,8 +4,8 @@ class SupabaseConfig {
   SupabaseConfig._();
 
   /// Your Supabase project URL (e.g., https://xxxxx.supabase.co)
-  static const String url = 'https://YOUR_PROJECT_ID.supabase.co';
+  static const String url = 'https://qneumjnmdiijkzrswrjp.supabase.co';
 
   /// Your Supabase anon/publishable key
-  static const String anonKey = 'YOUR_ANON_KEY_HERE';
+  static const String anonKey = 'sb_publishable_Roevo5fiZ3YFVldHx1AV9A_Dx7rCGif';
 }

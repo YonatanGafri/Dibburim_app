@@ -36,7 +36,7 @@ void main() async {
   await notificationService.init();
 
   final supabaseService = SupabaseService();
-  // await supabaseService.init(); // Uncomment when Supabase is configured
+  await supabaseService.init(); // Supabase is now configured
 
   // ─── Create Providers ───
   final settingsProvider = SettingsProvider(
