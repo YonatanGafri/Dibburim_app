@@ -1,0 +1,49 @@
+name: dibburim_app
+description: "Dibburim - A serene meditation and prayer timer app for daily Hitbodedut."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State Management
+  provider: ^6.1.2
+
+  # Supabase (placeholder for future backend)
+  supabase_flutter: ^2.14.2
+
+  # Audio Playback
+  audioplayers: ^6.1.0
+
+  # Local Storage
+  shared_preferences: ^2.3.4
+
+  # Local Notifications
+  flutter_local_notifications: ^18.0.1
+
+  # Timezone support for scheduled notifications
+  timezone: ^0.10.0
+
+  # Google Fonts (Heebo for Hebrew — loaded from CDN, no local files needed)
+  google_fonts: ^6.2.1
+
+  # Internationalization
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/audio/
+    - assets/images/
