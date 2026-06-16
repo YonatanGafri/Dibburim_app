@@ -149,7 +149,7 @@ class _CalendarViewState extends State<CalendarView> {
                 ),
                 child: Center(
                   child: completed
-                      ? const Icon(
+                      ? Icon(
                           Icons.check_rounded,
                           color: AppColors.primary,
                           size: 18,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../config/theme.dart';
-import '../data/prompts.dart' as prompts_data;
 import '../providers/timer_provider.dart';
 import '../providers/settings_provider.dart';
 import '../services/audio_service.dart';
@@ -162,8 +161,7 @@ class _ActiveSessionOverlayState extends State<ActiveSessionOverlay>
                 ),
 
               // Completion dialog overlay
-              if (_showCompletion)
-                CompletionDialog(onDismiss: _handleDismiss),
+              if (_showCompletion) CompletionDialog(onDismiss: _handleDismiss),
             ],
           ),
         ),

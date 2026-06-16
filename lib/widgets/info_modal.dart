@@ -48,16 +48,15 @@ class InfoModal extends StatelessWidget {
 
           // Temple icon
           Container(
-            width: 56,
-            height: 56,
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.primary.withAlpha(20),
+              color: AppColors.surfaceDim,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.auto_awesome,
               color: AppColors.primary,
-              size: 28,
+              size: 32,
             ),
           ),
           const SizedBox(height: 20),

@@ -62,7 +62,7 @@ class TogetherScreen extends StatelessWidget {
                       width: 1.5,
                     ),
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text(
                       '?',
                       style: TextStyle(

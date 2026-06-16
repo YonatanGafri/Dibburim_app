@@ -14,6 +14,10 @@ class TempleIllustration extends StatelessWidget {
         width: 240,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
+          border: AppColors.isBlueTheme ? null : Border.all(
+            color: AppColors.primary.withAlpha(200),
+            width: 4,
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withAlpha(15),
@@ -29,7 +33,7 @@ class TempleIllustration extends StatelessWidget {
             errorBuilder: (context, error, stackTrace) {
               // Fallback if image not yet generated
               return Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: AppColors.surfaceDim,
                   shape: BoxShape.circle,
                 ),

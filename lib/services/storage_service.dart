@@ -11,6 +11,16 @@ class StorageService {
     _prefs = await SharedPreferences.getInstance();
   }
 
+  // ─── Theme ───
+
+  bool getIsBlueTheme() {
+    return _prefs.getBool(AppConstants.keyTheme) ?? false;
+  }
+
+  Future<void> setIsBlueTheme(bool value) async {
+    await _prefs.setBool(AppConstants.keyTheme, value);
+  }
+
   // ─── Gender ───
 
   bool getIsFemale() {

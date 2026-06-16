@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../config/theme.dart';
 import '../data/strings.dart';
-import '../providers/timer_provider.dart';
 
 /// Warm, loving dialog displayed when a session completes.
 class CompletionDialog extends StatelessWidget {
@@ -35,16 +33,15 @@ class CompletionDialog extends StatelessWidget {
           children: [
             // Warm golden icon
             Container(
-              width: 72,
-              height: 72,
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: AppColors.primary.withAlpha(20),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.favorite_rounded,
                 color: AppColors.primary,
-                size: 36,
+                size: 48,
               ),
             ),
             const SizedBox(height: 24),

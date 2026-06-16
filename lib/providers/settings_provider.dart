@@ -9,6 +9,7 @@ class SettingsProvider extends ChangeNotifier {
 
   bool _isFemale = false;
   bool _reminderEnabled = false;
+  bool _isBlueTheme = false;
   int _reminderHour = 20;
   int _reminderMinute = 0;
 
@@ -21,6 +22,7 @@ class SettingsProvider extends ChangeNotifier {
   // ─── Getters ───
   bool get isFemale => _isFemale;
   bool get reminderEnabled => _reminderEnabled;
+  bool get isBlueTheme => _isBlueTheme;
   int get reminderHour => _reminderHour;
   int get reminderMinute => _reminderMinute;
 
@@ -31,6 +33,7 @@ class SettingsProvider extends ChangeNotifier {
   void loadFromStorage() {
     _isFemale = _storage.getIsFemale();
     _reminderEnabled = _storage.getReminderEnabled();
+    _isBlueTheme = _storage.getIsBlueTheme();
     _reminderHour = _storage.getReminderHour();
     _reminderMinute = _storage.getReminderMinute();
     notifyListeners();
@@ -40,6 +43,13 @@ class SettingsProvider extends ChangeNotifier {
   Future<void> setGender(bool isFemale) async {
     _isFemale = isFemale;
     await _storage.setIsFemale(isFemale);
+    notifyListeners();
+  }
+
+  /// Toggle the app theme color.
+  Future<void> setTheme(bool isBlue) async {
+    _isBlueTheme = isBlue;
+    await _storage.setIsBlueTheme(isBlue);
     notifyListeners();
   }
 

@@ -19,6 +19,7 @@ class AppConstants {
   static const String keyReminderEnabled = 'reminder_enabled';
   static const String keyReminderHour = 'reminder_hour';
   static const String keyReminderMinute = 'reminder_minute';
+  static const String keyTheme = 'app_theme_color';
 
   /// Audio asset paths.
   static const String ambientAudioPath = 'audio/ambient.mp3';

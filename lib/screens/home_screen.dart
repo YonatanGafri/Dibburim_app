@@ -38,7 +38,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                   IconButton(
                     onPressed: () => SettingsPanel.show(context),
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.settings_rounded,
                       color: AppColors.secondary,
                       size: 24,

@@ -6,19 +6,21 @@ import 'package:google_fonts/google_fonts.dart';
 class AppColors {
   AppColors._();
 
-  static const Color background = Color(0xFFFDF8F0);
-  static const Color surface = Color(0xFFFFFFFF);
-  static const Color surfaceDim = Color(0xFFF5EDE0);
-  static const Color primary = Color(0xFFC9A96E);
-  static const Color primaryDark = Color(0xFFA8864A);
-  static const Color secondary = Color(0xFFB8A590);
-  static const Color textPrimary = Color(0xFF3A3226);
-  static const Color textSecondary = Color(0xFF7A7068);
-  static const Color textOnPrimary = Color(0xFFFFFFFF);
-  static const Color success = Color(0xFF8DB580);
-  static const Color divider = Color(0xFFE8DFD2);
-  static const Color shimmer = Color(0xFFE8D5B0);
-  static const Color overlay = Color(0x99FDF8F0);
+  static bool isBlueTheme = false;
+
+  static Color get background => isBlueTheme ? const Color(0xFFF0F8FD) : const Color(0xFFFDF8F0);
+  static Color get surface => const Color(0xFFFFFFFF);
+  static Color get surfaceDim => isBlueTheme ? const Color(0xFFE0F0F5) : const Color(0xFFF5EDE0);
+  static Color get primary => isBlueTheme ? const Color(0xFF4A90E2) : const Color(0xFFC9A96E);
+  static Color get primaryDark => isBlueTheme ? const Color(0xFF357ABD) : const Color(0xFFA8864A);
+  static Color get secondary => isBlueTheme ? const Color(0xFF90B8D8) : const Color(0xFFB8A590);
+  static Color get textPrimary => isBlueTheme ? const Color(0xFF26323A) : const Color(0xFF3A3226);
+  static Color get textSecondary => isBlueTheme ? const Color(0xFF68707A) : const Color(0xFF7A7068);
+  static Color get textOnPrimary => const Color(0xFFFFFFFF);
+  static Color get success => isBlueTheme ? const Color(0xFF80B5A0) : const Color(0xFF8DB580);
+  static Color get divider => isBlueTheme ? const Color(0xFFD2DFE8) : const Color(0xFFE8DFD2);
+  static Color get shimmer => isBlueTheme ? const Color(0xFFB0D5E8) : const Color(0xFFE8D5B0);
+  static Color get overlay => isBlueTheme ? const Color(0x99F0F8FD) : const Color(0x99FDF8F0);
 }
 
 /// ─── Theme ───
@@ -29,7 +31,7 @@ ThemeData buildAppTheme() {
     useMaterial3: true,
     brightness: Brightness.light,
     scaffoldBackgroundColor: AppColors.background,
-    colorScheme: const ColorScheme.light(
+    colorScheme: ColorScheme.light(
       primary: AppColors.primary,
       onPrimary: AppColors.textOnPrimary,
       secondary: AppColors.secondary,
@@ -89,7 +91,7 @@ ThemeData buildAppTheme() {
         letterSpacing: 0,
       ),
     ),
-    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: AppColors.surface,
       selectedItemColor: AppColors.primary,
       unselectedItemColor: AppColors.secondary,
@@ -132,16 +134,16 @@ ThemeData buildAppTheme() {
       ),
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     ),
-    dividerTheme: const DividerThemeData(
+    dividerTheme: DividerThemeData(
       color: AppColors.divider,
       thickness: 1,
       space: 1,
     ),
-    iconTheme: const IconThemeData(
+    iconTheme: IconThemeData(
       color: AppColors.primary,
       size: 24,
     ),
-    appBarTheme: const AppBarTheme(
+    appBarTheme: AppBarTheme(
       backgroundColor: AppColors.background,
       elevation: 0,
       scrolledUnderElevation: 0,

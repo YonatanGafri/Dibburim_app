@@ -59,6 +59,41 @@ class SettingsPanel extends StatelessWidget {
           ),
           const SizedBox(height: 24),
 
+          // ─── Theme Toggle ───
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceDim.withAlpha(100),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'צבע רקע',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                // Toggle chips
+                Row(
+                  children: [
+                    _GenderChip(
+                      label: 'חום (קלאסי)',
+                      isSelected: !settings.isBlueTheme,
+                      onTap: () => settings.setTheme(false),
+                    ),
+                    const SizedBox(width: 8),
+                    _GenderChip(
+                      label: 'תכלת (חדש)',
+                      isSelected: settings.isBlueTheme,
+                      onTap: () => settings.setTheme(true),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
           // ─── Gender Toggle ───
           Container(
             padding: const EdgeInsets.all(16),
@@ -113,7 +148,7 @@ class SettingsPanel extends StatelessWidget {
                     Switch(
                       value: settings.reminderEnabled,
                       onChanged: (val) => settings.setReminderEnabled(val),
-                      activeColor: AppColors.primary,
+                      activeThumbColor: AppColors.primary,
                       inactiveTrackColor: AppColors.divider,
                     ),
                   ],
@@ -142,10 +177,12 @@ class SettingsPanel extends StatelessWidget {
                           ),
                           Text(
                             settings.reminderTimeDisplay,
-                            style:
-                                Theme.of(context).textTheme.titleMedium?.copyWith(
-                                      color: AppColors.primary,
-                                    ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  color: AppColors.primary,
+                                ),
                           ),
                         ],
                       ),
@@ -227,7 +264,8 @@ class _GenderChip extends StatelessWidget {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: isSelected ? AppColors.textOnPrimary : AppColors.textSecondary,
+            color:
+                isSelected ? AppColors.textOnPrimary : AppColors.textSecondary,
           ),
         ),
       ),

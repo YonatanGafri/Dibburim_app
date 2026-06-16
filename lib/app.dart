@@ -5,6 +5,7 @@ import 'data/strings.dart';
 import 'providers/timer_provider.dart';
 import 'providers/session_provider.dart';
 import 'providers/counter_provider.dart';
+import 'providers/settings_provider.dart';
 import 'services/audio_service.dart';
 import 'screens/home_screen.dart';
 import 'screens/together_screen.dart';
@@ -18,7 +19,11 @@ class DiburimApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settings = context.watch<SettingsProvider>();
+    AppColors.isBlueTheme = settings.isBlueTheme;
+
     return MaterialApp(
+      key: ValueKey(settings.isBlueTheme), // Force full app rebuild when theme changes
       title: 'דיבורים',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
@@ -91,7 +96,7 @@ class _AppShellState extends State<_AppShell> {
             onTap: (index) => setState(() => _currentIndex = index),
             items: [
               BottomNavigationBarItem(
-                icon: const Icon(Icons.self_improvement_rounded),
+                icon: const Icon(Icons.person_rounded),
                 label: AppStrings.neutral('tab1'),
               ),
               BottomNavigationBarItem(
