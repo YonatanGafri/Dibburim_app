@@ -90,7 +90,13 @@ class NotificationService {
   Future<bool> requestPermissions() async {
     final android = _plugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
-    final granted = await android?.requestNotificationsPermission();
-    return granted ?? false;
+    
+    // Request notification permission
+    final granted = await android?.requestNotificationsPermission() ?? false;
+    
+    // Request exact alarms permission (required for Android 14+ to schedule alarms)
+    await android?.requestExactAlarmsPermission();
+    
+    return granted;
   }
 }

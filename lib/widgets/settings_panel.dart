@@ -147,7 +147,17 @@ class SettingsPanel extends StatelessWidget {
                     ),
                     Switch(
                       value: settings.reminderEnabled,
-                      onChanged: (val) => settings.setReminderEnabled(val),
+                      onChanged: (val) async {
+                        final success = await settings.setReminderEnabled(val);
+                        if (!success && val && context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('יש לאשר הרשאות התראה בהגדרות המכשיר'),
+                              duration: Duration(seconds: 3),
+                            ),
+                          );
+                        }
+                      },
                       activeThumbColor: AppColors.primary,
                       inactiveTrackColor: AppColors.divider,
                     ),

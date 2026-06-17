@@ -6,6 +6,7 @@ import 'app.dart';
 import 'services/storage_service.dart';
 import 'services/notification_service.dart';
 import 'services/supabase_service.dart';
+import 'services/auth_service.dart';
 import 'providers/timer_provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/session_provider.dart';
@@ -38,6 +39,8 @@ void main() async {
   final supabaseService = SupabaseService();
   await supabaseService.init(); // Supabase is now configured
 
+  final authService = AuthService();
+
   // ─── Create Providers ───
   final settingsProvider = SettingsProvider(
     storage: storageService,
@@ -46,6 +49,7 @@ void main() async {
 
   final sessionProvider = SessionProvider(
     storage: storageService,
+    supabase: supabaseService,
   )..loadFromStorage();
 
   final counterProvider = CounterProvider(
@@ -56,6 +60,7 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        Provider<AuthService>.value(value: authService),
         ChangeNotifierProvider(create: (_) => TimerProvider()),
         ChangeNotifierProvider.value(value: settingsProvider),
         ChangeNotifierProvider.value(value: sessionProvider),

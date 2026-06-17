@@ -28,7 +28,9 @@ class TempleIllustration extends StatelessWidget {
         ),
         child: ClipOval(
           child: Image.asset(
-            'assets/images/beit_hamikdash.png',
+            AppColors.isBlueTheme
+                ? 'assets/images/beit_hamikdash_blue.png'
+                : 'assets/images/beit_hamikdash_gold.png',
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               // Fallback if image not yet generated

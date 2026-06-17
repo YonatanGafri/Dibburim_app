@@ -23,8 +23,8 @@ class AppStrings {
       female: 'מתחילות לדבר',
     ),
     'completionMessage': _GenderedString(
-      male: 'אשריך, קדשת את הזמן שלך.\nהשם שמע את הדיבורים שלך.',
-      female: 'אשריך, קדשת את הזמן שלך.\nהשם שמע את הדיבורים שלך.',
+      male: 'אשריך שהקדשת זמן לנשמה שלך.\nבורא עולם קרוב אליך, ושומע באהבה כל מילה.',
+      female: 'אשרייך שהקדשת זמן לנשמה שלך.\nבורא עולם קרוב אליך, ושומע באהבה כל מילה.',
     ),
     'streakMessage': _GenderedString(
       male: 'אתה מתמיד כבר',
@@ -52,6 +52,13 @@ class AppStrings {
     'tab3': 'הדרך שלי',
     'tab4': 'השראה',
 
+    // Together Screen
+    'tabGeneral': 'כללי',
+    'tabTemple': 'המקדש',
+    'templePrayer': '"וְתֶחֱזֶינָה עֵינֵינוּ בְּשׁוּבְךָ לְצִיּוֹן בְּרַחֲמִים"',
+    'templeButton': 'התפללתי עכשיו',
+    'templeSubtitle': 'כאן אנחנו מתאחדים בתפילה משותפת לבניין המקדש.',
+
     // Duration toggles
     'minutes5': '5 דקות',
     'minutes10': '10 דקות',
@@ -61,9 +68,10 @@ class AppStrings {
     'finish': 'סיום',
     'cancel': 'ביטול',
     'pause': 'השהיה',
+    'continueTalking': 'להמשיך לדבר',
 
     // Tab 2
-    'togetherTitle': 'יחד',
+    'togetherTitle': 'יחד בבניין בית המקדש',
     'globalCounterText': 'היום זכו',
     'globalCounterSuffix': 'יהודים להתבודד ולשפוך שיח',
     'infoModalVerse':

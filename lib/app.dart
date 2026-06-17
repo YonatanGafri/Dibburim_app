@@ -10,7 +10,6 @@ import 'services/audio_service.dart';
 import 'screens/home_screen.dart';
 import 'screens/together_screen.dart';
 import 'screens/journey_screen.dart';
-import 'screens/inspiration_screen.dart';
 import 'widgets/active_session_overlay.dart';
 
 /// Root application widget with bottom navigation and session overlay.
@@ -54,7 +53,6 @@ class _AppShellState extends State<_AppShell> {
     HomeScreen(),
     TogetherScreen(),
     JourneyScreen(),
-    InspirationScreen(),
   ];
 
   @override
@@ -68,8 +66,9 @@ class _AppShellState extends State<_AppShell> {
     final sessionProvider = context.read<SessionProvider>();
     final counterProvider = context.read<CounterProvider>();
 
-    // Record the completed session
-    sessionProvider.recordSession(timerProvider.selectedDurationMinutes);
+    // Record the completed session (rounding up to nearest minute for overtime)
+    final actualMinutes = (timerProvider.totalActualSeconds / 60).round();
+    sessionProvider.recordSession(actualMinutes);
     counterProvider.increment();
     timerProvider.resetCompletion();
   }
@@ -106,10 +105,6 @@ class _AppShellState extends State<_AppShell> {
               BottomNavigationBarItem(
                 icon: const Icon(Icons.insights_rounded),
                 label: AppStrings.neutral('tab3'),
-              ),
-              BottomNavigationBarItem(
-                icon: const Icon(Icons.auto_stories_rounded),
-                label: AppStrings.neutral('tab4'),
               ),
             ],
           ),

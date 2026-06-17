@@ -54,17 +54,24 @@ class SettingsProvider extends ChangeNotifier {
   }
 
   /// Enable/disable the daily reminder.
-  Future<void> setReminderEnabled(bool enabled) async {
+  Future<bool> setReminderEnabled(bool enabled) async {
+    if (enabled) {
+      final granted = await _notifications.requestPermissions();
+      if (!granted) {
+        return false;
+      }
+    }
+
     _reminderEnabled = enabled;
     await _storage.setReminderEnabled(enabled);
 
     if (enabled) {
-      await _notifications.requestPermissions();
       await _notifications.scheduleDailyReminder(_reminderHour, _reminderMinute);
     } else {
       await _notifications.cancelReminder();
     }
     notifyListeners();
+    return true;
   }
 
   /// Update the reminder time.

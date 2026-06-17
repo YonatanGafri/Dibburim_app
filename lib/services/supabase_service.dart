@@ -1,5 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/foundation.dart';
 import '../config/supabase_config.dart';
+import '../models/session.dart';
 
 /// Supabase service — handles backend integration for the global prayer counter.
 class SupabaseService {
@@ -46,5 +48,42 @@ class SupabaseService {
       }
       return 0;
     });
+  }
+
+  /// Save a user's personal session to the cloud.
+  Future<void> saveUserSession(PrayerSession session) async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return;
+    try {
+      await Supabase.instance.client.from('user_sessions').insert({
+        'user_id': user.id,
+        'date': session.date.toIso8601String(),
+        'duration_minutes': session.durationMinutes,
+      });
+    } catch (e) {
+      debugPrint('Error saving session to cloud: $e');
+    }
+  }
+
+  /// Fetch user's personal sessions from the cloud.
+  Future<List<PrayerSession>> getUserSessions() async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return [];
+    try {
+      final response = await Supabase.instance.client
+          .from('user_sessions')
+          .select()
+          .eq('user_id', user.id);
+      
+      return response.map<PrayerSession>((json) {
+        return PrayerSession(
+          date: DateTime.parse(json['date']),
+          durationMinutes: json['duration_minutes'],
+        );
+      }).toList();
+    } catch (e) {
+      debugPrint('Error fetching cloud sessions: $e');
+      return [];
+    }
   }
 }

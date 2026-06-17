@@ -4,7 +4,6 @@ import '../config/theme.dart';
 import '../data/strings.dart';
 import '../providers/counter_provider.dart';
 import '../widgets/temple_illustration.dart';
-import '../widgets/global_counter.dart';
 import '../widgets/info_modal.dart';
 
 /// Tab 2: יחד (Together) — Community & Holy Temple Screen
@@ -21,6 +20,7 @@ class TogetherScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 20),
         child: Column(
           children: [
+            const SizedBox(height: 10),
             // Title
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -29,24 +29,105 @@ class TogetherScreen extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40),
               child: Text(
-                'כל תפילה מחברת אותנו יחד',
+                AppStrings.neutral('templeSubtitle'),
                 style: Theme.of(context).textTheme.bodyMedium,
                 textAlign: TextAlign.center,
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 20),
 
             // Temple illustration
             const TempleIllustration(),
-            const SizedBox(height: 32),
+            const SizedBox(height: 20),
 
-            // Global counter
-            GlobalCounter(count: counterProvider.todayCount),
-            const SizedBox(height: 12),
+            // The Counter
+            Center(
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.secondary.withAlpha(20),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      '${counterProvider.todayCount}',
+                      style: TextStyle(
+                        fontSize: 52,
+                        fontWeight: FontWeight.w300,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    Text(
+                      'תפילות היום',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 30),
+
+            // The Prayer
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Text(
+                AppStrings.neutral('templePrayer'),
+                style: TextStyle(
+                  fontSize: 18,
+                  color: AppColors.primary,
+                  height: 1.4,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 30),
+
+            // The Action Button
+            ElevatedButton(
+              onPressed: () {
+                counterProvider.increment();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('זכינו! התפילה שלך נוספה.'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                elevation: 0,
+              ),
+              child: Text(
+                AppStrings.neutral('templeButton'),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const SizedBox(height: 40),
 
             // Info (?) button
             Center(

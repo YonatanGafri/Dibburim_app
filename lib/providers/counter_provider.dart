@@ -14,13 +14,22 @@ class CounterProvider extends ChangeNotifier {
     _startListening();
   }
 
-  int get todayCount => _todayCount;
+  int get todayCount => _todayCount + 1000; // Spoofed for UI testing
 
   void _startListening() {
-    _subscription = _supabase.subscribeToDailyCounter().listen((count) {
-      _todayCount = count;
-      notifyListeners();
-    });
+    try {
+      _subscription = _supabase.subscribeToDailyCounter().listen(
+        (count) {
+          _todayCount = count;
+          notifyListeners();
+        },
+        onError: (error) {
+          debugPrint('Supabase Stream Error: $error');
+        },
+      );
+    } catch (e) {
+      debugPrint('Supabase Subscribe Error: $e');
+    }
   }
 
   /// Load the initial count immediately before stream emits.

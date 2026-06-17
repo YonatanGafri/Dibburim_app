@@ -9,6 +9,8 @@ class TimerProvider extends ChangeNotifier {
   int _remainingSeconds = AppConstants.defaultDurationMinutes * 60;
   bool _isActive = false;
   bool _isCompleted = false;
+  bool _isOvertime = false;
+  int _overtimeSeconds = 0;
   int _currentPromptIndex = 0;
 
   Timer? _timer;
@@ -20,18 +22,29 @@ class TimerProvider extends ChangeNotifier {
   int get remainingSeconds => _remainingSeconds;
   bool get isActive => _isActive;
   bool get isCompleted => _isCompleted;
+  bool get isOvertime => _isOvertime;
+  int get overtimeSeconds => _overtimeSeconds;
   int get currentPromptIndex => _currentPromptIndex;
 
   String get displayTime {
+    if (_isOvertime) {
+      final m = (_overtimeSeconds ~/ 60).toString().padLeft(2, '0');
+      final s = (_overtimeSeconds % 60).toString().padLeft(2, '0');
+      return '$m:$s';
+    }
     final minutes = (_remainingSeconds ~/ 60).toString().padLeft(2, '0');
     final seconds = (_remainingSeconds % 60).toString().padLeft(2, '0');
     return '$minutes:$seconds';
   }
 
   double get progress {
+    if (_isOvertime) return 1.0; // Full circle during overtime
     if (_totalSessionSeconds == 0) return 1.0;
     return _remainingSeconds / _totalSessionSeconds;
   }
+
+  /// The actual total time the user spent (original + overtime)
+  int get totalActualSeconds => _totalSessionSeconds + _overtimeSeconds;
 
   /// Get the current prompt to display (if any exist).
   InspirationPrompt? get currentPrompt {
@@ -55,6 +68,8 @@ class TimerProvider extends ChangeNotifier {
     if (_isActive) return;
     _isActive = true;
     _isCompleted = false;
+    _isOvertime = false;
+    _overtimeSeconds = 0;
     _totalSessionSeconds = _selectedDurationMinutes * 60;
     _remainingSeconds = _totalSessionSeconds;
     _startTime = DateTime.now();
@@ -66,10 +81,19 @@ class TimerProvider extends ChangeNotifier {
 
   /// Internal tick handler — runs every second.
   void _tick(Timer timer) {
-    // Use wall-clock time for accuracy (survives backgrounding)
     if (_startTime != null) {
       final elapsed = DateTime.now().difference(_startTime!).inSeconds;
-      _remainingSeconds = _totalSessionSeconds - elapsed;
+      
+      if (elapsed >= _totalSessionSeconds) {
+        // We are in overtime
+        if (!_isOvertime) {
+          _isOvertime = true;
+          _remainingSeconds = 0;
+        }
+        _overtimeSeconds = elapsed - _totalSessionSeconds;
+      } else {
+        _remainingSeconds = _totalSessionSeconds - elapsed;
+      }
 
       // Rotate prompt every N seconds
       if (inspirationPrompts.isNotEmpty) {
@@ -77,14 +101,12 @@ class TimerProvider extends ChangeNotifier {
             elapsed ~/ AppConstants.promptRotationIntervalSeconds;
       }
     }
-
-    if (_remainingSeconds <= 0) {
-      _remainingSeconds = 0;
-      _complete();
-      return;
-    }
-
     notifyListeners();
+  }
+
+  /// Manually stop the timer and trigger completion (especially from overtime).
+  void stopAndComplete() {
+    _complete();
   }
 
   /// Mark the session as completed.
@@ -102,6 +124,8 @@ class TimerProvider extends ChangeNotifier {
     _timer = null;
     _isActive = false;
     _isCompleted = false;
+    _isOvertime = false;
+    _overtimeSeconds = 0;
     _remainingSeconds = _selectedDurationMinutes * 60;
     _totalSessionSeconds = _remainingSeconds;
     _startTime = null;
@@ -111,6 +135,8 @@ class TimerProvider extends ChangeNotifier {
   /// Reset the completed state (after dismissing the completion dialog).
   void resetCompletion() {
     _isCompleted = false;
+    _isOvertime = false;
+    _overtimeSeconds = 0;
     _remainingSeconds = _selectedDurationMinutes * 60;
     _totalSessionSeconds = _remainingSeconds;
     notifyListeners();

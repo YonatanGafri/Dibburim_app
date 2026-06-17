@@ -6,7 +6,10 @@ import '../data/strings.dart';
 class CompletionDialog extends StatelessWidget {
   final VoidCallback onDismiss;
 
-  const CompletionDialog({super.key, required this.onDismiss});
+  const CompletionDialog({
+    super.key,
+    required this.onDismiss,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +58,7 @@ class CompletionDialog extends StatelessWidget {
                   ),
             ),
             const SizedBox(height: 28),
-            // Dismiss button
+            // Dismiss / Finish button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(

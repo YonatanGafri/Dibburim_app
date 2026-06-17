@@ -4,28 +4,14 @@ import '../data/strings.dart';
 import '../providers/session_provider.dart';
 import '../providers/settings_provider.dart';
 import '../widgets/calendar_view.dart';
+import '../services/auth_service.dart';
+import 'auth_screen.dart';
 import '../widgets/stats_card.dart';
 
 /// Tab 3: הדרך שלי (My Journey) — Analytics & Consistency
 /// Monthly calendar, streak, and statistics display.
-class JourneyScreen extends StatefulWidget {
+class JourneyScreen extends StatelessWidget {
   const JourneyScreen({super.key});
-
-  @override
-  State<JourneyScreen> createState() => _JourneyScreenState();
-}
-
-class _JourneyScreenState extends State<JourneyScreen> {
-  late int _viewYear;
-  late int _viewMonth;
-
-  @override
-  void initState() {
-    super.initState();
-    final now = DateTime.now();
-    _viewYear = now.year;
-    _viewMonth = now.month;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,11 +19,12 @@ class _JourneyScreenState extends State<JourneyScreen> {
     final settingsProvider = context.watch<SettingsProvider>();
     final isFemale = settingsProvider.isFemale;
 
-    final completedDates =
-        sessionProvider.getCompletedDates(_viewYear, _viewMonth);
     final streak = sessionProvider.currentStreak;
     final monthlyCount = sessionProvider.monthlyCount;
     final yearlyMinutes = sessionProvider.yearlyMinutes;
+
+    final authService = context.watch<AuthService>();
+    final isLoggedIn = authService.isLoggedIn;
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -55,8 +42,38 @@ class _JourneyScreenState extends State<JourneyScreen> {
             const SizedBox(height: 24),
 
             // Calendar
-            CalendarView(completedDates: completedDates),
+            CalendarView(sessions: sessionProvider.sessions),
             const SizedBox(height: 24),
+
+            if (!isLoggedIn)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Card(
+                  color: Theme.of(context).primaryColorLight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        const Text(
+                          'כדי לשמור את זמני ההתבודדות שלך ולעקוב אחריהם בלוח השנה לאורך זמן - יש להירשם לחשבון (בחינם)',
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const AuthScreen()),
+                            );
+                          },
+                          child: const Text('הרשמה / התחברות'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            if (!isLoggedIn) const SizedBox(height: 24),
 
             // Stats cards
             Padding(
