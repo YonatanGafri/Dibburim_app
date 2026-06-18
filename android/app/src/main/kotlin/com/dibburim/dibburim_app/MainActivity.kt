@@ -1,4 +1,4 @@
-package com.diburim.dibburim_app
+package com.dibburim.dibburim_app
 
 import io.flutter.embedding.android.FlutterActivity
 

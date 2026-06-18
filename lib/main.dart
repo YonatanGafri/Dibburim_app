@@ -54,6 +54,7 @@ void main() async {
 
   final counterProvider = CounterProvider(
     supabase: supabaseService,
+    storage: storageService,
   )..loadCount();
 
   // ─── Run App ───

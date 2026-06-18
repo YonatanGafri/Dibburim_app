@@ -77,14 +77,16 @@ class SettingsPanel extends StatelessWidget {
                 Row(
                   children: [
                     _GenderChip(
-                      label: 'חום (קלאסי)',
+                      label: 'חום',
                       isSelected: !settings.isBlueTheme,
+                      activeColor: const Color(0xFFC9A96E),
                       onTap: () => settings.setTheme(false),
                     ),
                     const SizedBox(width: 8),
                     _GenderChip(
-                      label: 'תכלת (חדש)',
+                      label: 'תכלת',
                       isSelected: settings.isBlueTheme,
+                      activeColor: const Color(0xFF4A90E2),
                       onTap: () => settings.setTheme(true),
                     ),
                   ],
@@ -112,13 +114,13 @@ class SettingsPanel extends StatelessWidget {
                 Row(
                   children: [
                     _GenderChip(
-                      label: 'מדבר',
+                      label: 'זכר',
                       isSelected: !settings.isFemale,
                       onTap: () => settings.setGender(false),
                     ),
                     const SizedBox(width: 8),
                     _GenderChip(
-                      label: 'מדברת',
+                      label: 'נקבה',
                       isSelected: settings.isFemale,
                       onTap: () => settings.setGender(true),
                     ),
@@ -248,25 +250,28 @@ class _GenderChip extends StatelessWidget {
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
+  final Color? activeColor;
 
   const _GenderChip({
     required this.label,
     required this.isSelected,
     required this.onTap,
+    this.activeColor,
   });
 
   @override
   Widget build(BuildContext context) {
+    final color = activeColor ?? AppColors.primary;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.transparent,
+          color: isSelected ? color : color.withAlpha(30),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.divider,
+            color: isSelected ? color : color.withAlpha(80),
           ),
         ),
         child: Text(
@@ -274,8 +279,7 @@ class _GenderChip extends StatelessWidget {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color:
-                isSelected ? AppColors.textOnPrimary : AppColors.textSecondary,
+            color: isSelected ? AppColors.textOnPrimary : color,
           ),
         ),
       ),

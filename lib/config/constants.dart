@@ -20,6 +20,7 @@ class AppConstants {
   static const String keyReminderHour = 'reminder_hour';
   static const String keyReminderMinute = 'reminder_minute';
   static const String keyTheme = 'app_theme_color';
+  static const String keyLastTemplePrayerDate = 'last_temple_prayer_date';
 
   /// Audio asset paths.
   static const String ambientAudioPath = 'audio/ambient.mp3';

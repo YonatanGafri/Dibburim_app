@@ -100,18 +100,24 @@ class TogetherScreen extends StatelessWidget {
 
             // The Action Button
             ElevatedButton(
-              onPressed: () {
-                counterProvider.increment();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('זכינו! התפילה שלך נוספה.'),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
-              },
+              onPressed: counterProvider.hasPrayedToday
+                  ? null
+                  : () {
+                      counterProvider.increment();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('זכינו! התפילה שלך נוספה.'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    },
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
+                backgroundColor: counterProvider.hasPrayedToday
+                    ? Colors.grey.shade400
+                    : AppColors.primary,
                 foregroundColor: Colors.white,
+                disabledBackgroundColor: Colors.grey.shade400,
+                disabledForegroundColor: Colors.white,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                 shape: RoundedRectangleBorder(
@@ -120,7 +126,9 @@ class TogetherScreen extends StatelessWidget {
                 elevation: 0,
               ),
               child: Text(
-                AppStrings.neutral('templeButton'),
+                counterProvider.hasPrayedToday
+                    ? 'התפללתי היום'
+                    : AppStrings.neutral('templeButton'),
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,

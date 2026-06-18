@@ -21,8 +21,23 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
-    namespace "com.diburim.dibburim_app"
+    namespace "com.dibburim.dibburim_app"
+
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storePassword keystoreProperties['storePassword']
+        }
+    }
     compileSdk 36
     ndkVersion flutter.ndkVersion
 
@@ -42,7 +57,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.diburim.dibburim_app"
+        applicationId "com.dibburim.dibburim_app"
         minSdkVersion flutter.minSdkVersion
         targetSdk 36
         versionCode flutterVersionCode.toInteger()
@@ -52,7 +67,7 @@ android {
 
     buildTypes {
         release {
-            signingConfig signingConfigs.debug
+            signingConfig = keystorePropertiesFile.exists() ? signingConfigs.release : signingConfigs.debug
         }
     }
 }

@@ -30,7 +30,7 @@ class TimerProvider extends ChangeNotifier {
     if (_isOvertime) {
       final m = (_overtimeSeconds ~/ 60).toString().padLeft(2, '0');
       final s = (_overtimeSeconds % 60).toString().padLeft(2, '0');
-      return '$m:$s';
+      return '+$m:$s';
     }
     final minutes = (_remainingSeconds ~/ 60).toString().padLeft(2, '0');
     final seconds = (_remainingSeconds % 60).toString().padLeft(2, '0');

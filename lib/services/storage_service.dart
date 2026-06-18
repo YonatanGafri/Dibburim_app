@@ -82,4 +82,14 @@ class StorageService {
     sessions.add(session);
     await saveSessions(sessions);
   }
+
+  // ─── Temple Prayer ───
+
+  String? getLastTemplePrayerDate() {
+    return _prefs.getString(AppConstants.keyLastTemplePrayerDate);
+  }
+
+  Future<void> setLastTemplePrayerDate(String dateStr) async {
+    await _prefs.setString(AppConstants.keyLastTemplePrayerDate, dateStr);
+  }
 }
