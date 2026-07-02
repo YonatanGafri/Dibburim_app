@@ -69,8 +69,6 @@ class _ActiveSessionOverlayState extends State<ActiveSessionOverlay>
   @override
   Widget build(BuildContext context) {
     final timerProvider = context.watch<TimerProvider>();
-    final settingsProvider = context.watch<SettingsProvider>();
-    final isFemale = settingsProvider.isFemale;
 
     // Trigger overtime chime when overtime starts
     if (timerProvider.isOvertime && !_hasPlayedOvertimeChime) {
@@ -88,18 +86,17 @@ class _ActiveSessionOverlayState extends State<ActiveSessionOverlay>
         child: SafeArea(
           child: Stack(
             children: [
-              // Subtle gradient background
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      AppColors.background,
-                      AppColors.surfaceDim.withAlpha(120),
-                      AppColors.background,
-                    ],
-                  ),
+              // Background image
+              Positioned.fill(
+                child: Image.asset(
+                  'assets/images/bg_sky.png',
+                  fit: BoxFit.cover,
+                ),
+              ),
+              // Soft overlay to maintain contrast
+              Positioned.fill(
+                child: Container(
+                  color: AppColors.background.withAlpha(200), // Slightly darker overlay for the timer screen
                 ),
               ),
 
@@ -149,11 +146,42 @@ class _ActiveSessionOverlayState extends State<ActiveSessionOverlay>
                   CircularTimer(
                     displayTime: timerProvider.displayTime,
                     progress: timerProvider.progress,
-                    isActive: true,
+                    isActive: !timerProvider.isPaused,
                     size: 280,
                   ),
 
-                  const Spacer(flex: 2),
+                  const Spacer(flex: 1),
+
+                  // Pause/Play Button
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.primary.withAlpha(20),
+                      border: Border.all(color: AppColors.primary, width: 2),
+                    ),
+                    child: IconButton(
+                      onPressed: () {
+                        if (timerProvider.isPaused) {
+                          timerProvider.resume();
+                          // optionally resume ambient
+                          widget.audioService.playAmbient();
+                        } else {
+                          timerProvider.pause();
+                          // optionally pause ambient
+                          widget.audioService.stopAmbient();
+                        }
+                      },
+                      icon: Icon(
+                        timerProvider.isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
+                        size: 36,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+
+                  const Spacer(flex: 1),
 
                   // "Done" button during overtime
                   if (timerProvider.isOvertime)

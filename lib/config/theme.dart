@@ -11,12 +11,12 @@ class AppColors {
   static Color get background => isBlueTheme ? const Color(0xFFF0F8FD) : const Color(0xFFFDF8F0);
   static Color get surface => const Color(0xFFFFFFFF);
   static Color get surfaceDim => isBlueTheme ? const Color(0xFFE0F0F5) : const Color(0xFFF5EDE0);
-  static Color get primary => isBlueTheme ? const Color(0xFF4A90E2) : const Color(0xFFC9A96E);
-  static Color get primaryDark => isBlueTheme ? const Color(0xFF357ABD) : const Color(0xFFA8864A);
+  static Color get primary => isBlueTheme ? const Color(0xFF357ABD) : const Color(0xFFE4CB9F); // Strong Cream / Bright Gold
+  static Color get primaryDark => isBlueTheme ? const Color(0xFF23558A) : const Color(0xFFBCA073);
   static Color get secondary => isBlueTheme ? const Color(0xFF90B8D8) : const Color(0xFFB8A590);
   static Color get textPrimary => isBlueTheme ? const Color(0xFF26323A) : const Color(0xFF3A3226);
-  static Color get textSecondary => isBlueTheme ? const Color(0xFF68707A) : const Color(0xFF7A7068);
-  static Color get textOnPrimary => const Color(0xFFFFFFFF);
+  static Color get textSecondary => isBlueTheme ? const Color(0xFF4B525B) : const Color(0xFF5B524B); // 20-30% darker
+  static Color get textOnPrimary => isBlueTheme ? const Color(0xFFFFFFFF) : const Color(0xFF7A7068); // Lighter gray-brown for text on cream button
   static Color get success => isBlueTheme ? const Color(0xFF80B5A0) : const Color(0xFF8DB580);
   static Color get divider => isBlueTheme ? const Color(0xFFD2DFE8) : const Color(0xFFE8DFD2);
   static Color get shimmer => isBlueTheme ? const Color(0xFFB0D5E8) : const Color(0xFFE8D5B0);
@@ -25,7 +25,7 @@ class AppColors {
 
 /// ─── Theme ───
 ThemeData buildAppTheme() {
-  final baseTextTheme = GoogleFonts.heeboTextTheme();
+  final baseTextTheme = GoogleFonts.rubikTextTheme();
 
   return ThemeData(
     useMaterial3: true,
@@ -97,7 +97,7 @@ ThemeData buildAppTheme() {
       unselectedItemColor: AppColors.secondary,
       type: BottomNavigationBarType.fixed,
       elevation: 8,
-      selectedLabelStyle: TextStyle(
+      selectedLabelStyle: const TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w500,
         letterSpacing: 0,
@@ -112,15 +112,15 @@ ThemeData buildAppTheme() {
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.textOnPrimary,
-        elevation: 2,
-        shadowColor: AppColors.primary.withAlpha(80),
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+        elevation: 6, // Slightly more elevation for that subtle shadow
+        shadowColor: AppColors.primary.withAlpha(120),
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20), // Increased height
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(32), // More pill-like
         ),
         textStyle: const TextStyle(
           fontSize: 18,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w600, // Make text bolder for main button
           letterSpacing: 0,
         ),
       ),
@@ -141,7 +141,7 @@ ThemeData buildAppTheme() {
     ),
     iconTheme: IconThemeData(
       color: AppColors.primary,
-      size: 24,
+      size: 28, // Increased from 24
     ),
     appBarTheme: AppBarTheme(
       backgroundColor: AppColors.background,

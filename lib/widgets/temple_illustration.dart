@@ -10,28 +10,36 @@ class TempleIllustration extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        height: 240,
-        width: 240,
+        height: 250,
+        width: 250,
+        padding: const EdgeInsets.all(8), // Our new, thick modern frame!
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: AppColors.isBlueTheme ? null : Border.all(
-            color: AppColors.primary.withAlpha(200),
-            width: 4,
-          ),
+          color: AppColors.primary, // The color of the thick frame
           boxShadow: [
+            // Glowing aura around the thick frame
             BoxShadow(
-              color: Colors.black.withAlpha(15),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
+              color: AppColors.primary.withAlpha(220), // Brighter gold aura
+              blurRadius: 35,
+              spreadRadius: 4,
+              offset: Offset.zero,
+            ),
+            // Standard shadow to pop out from background
+            BoxShadow(
+              color: Colors.black.withAlpha(20),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
         child: ClipOval(
-          child: Image.asset(
-            AppColors.isBlueTheme
-                ? 'assets/images/beit_hamikdash_blue.png'
-                : 'assets/images/beit_hamikdash_gold.png',
-            fit: BoxFit.cover,
+          child: Transform.scale(
+            scale: 1.1, // Zoom in by 10% to completely hide the original thin frame!
+            child: Image.asset(
+              AppColors.isBlueTheme
+                  ? 'assets/images/beit_hamikdash_blue.png'
+                  : 'assets/images/beit_hamikdash_gold.png',
+              fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
               // Fallback if image not yet generated
               return Container(
@@ -61,7 +69,8 @@ class TempleIllustration extends StatelessWidget {
               );
             },
           ),
-        ),
+          ), // Closes Transform.scale
+        ), // Closes ClipOval
       ),
     );
   }

@@ -38,174 +38,214 @@ class SettingsPanel extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Handle bar
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: AppColors.divider,
-              borderRadius: BorderRadius.circular(2),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.divider,
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
-          ),
-          const SizedBox(height: 20),
-
-          // Title
-          Text(
-            AppStrings.neutral('settingsTitle'),
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 24),
-
-          // ─── Theme Toggle ───
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceDim.withAlpha(100),
-              borderRadius: BorderRadius.circular(16),
+            const SizedBox(height: 20),
+  
+            // Title
+            Text(
+              AppStrings.neutral('settingsTitle'),
+              style: Theme.of(context).textTheme.titleLarge,
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'צבע רקע',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                // Toggle chips
-                Row(
-                  children: [
-                    _GenderChip(
-                      label: 'חום',
-                      isSelected: !settings.isBlueTheme,
-                      activeColor: const Color(0xFFC9A96E),
-                      onTap: () => settings.setTheme(false),
-                    ),
-                    const SizedBox(width: 8),
-                    _GenderChip(
-                      label: 'תכלת',
-                      isSelected: settings.isBlueTheme,
-                      activeColor: const Color(0xFF4A90E2),
-                      onTap: () => settings.setTheme(true),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // ─── Gender Toggle ───
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceDim.withAlpha(100),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  AppStrings.neutral('genderLabel'),
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                // Toggle chips
-                Row(
-                  children: [
-                    _GenderChip(
-                      label: 'זכר',
-                      isSelected: !settings.isFemale,
-                      onTap: () => settings.setGender(false),
-                    ),
-                    const SizedBox(width: 8),
-                    _GenderChip(
-                      label: 'נקבה',
-                      isSelected: settings.isFemale,
-                      onTap: () => settings.setGender(true),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // ─── Daily Reminder Toggle ───
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceDim.withAlpha(100),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      AppStrings.neutral('reminderLabel'),
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    Switch(
-                      value: settings.reminderEnabled,
-                      onChanged: (val) async {
-                        final success = await settings.setReminderEnabled(val);
-                        if (!success && val && context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('יש לאשר הרשאות התראה בהגדרות המכשיר'),
-                              duration: Duration(seconds: 3),
-                            ),
-                          );
-                        }
-                      },
-                      activeThumbColor: AppColors.primary,
-                      inactiveTrackColor: AppColors.divider,
-                    ),
-                  ],
-                ),
-
-                // Time picker (visible when reminder is enabled)
-                if (settings.reminderEnabled) ...[
-                  const SizedBox(height: 12),
-                  InkWell(
-                    onTap: () => _pickTime(context, settings),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.divider),
+            const SizedBox(height: 24),
+  
+            // ─── Language Toggle ───
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceDim.withAlpha(100),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    AppStrings.neutral('languageLabel'),
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                  // Toggle chips
+                  Row(
+                    children: [
+                      _GenderChip(
+                        label: 'עברית',
+                        isSelected: settings.language == 'he',
+                        onTap: () => settings.setLanguage('he'),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            AppStrings.neutral('reminderTime'),
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                          Text(
-                            settings.reminderTimeDisplay,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  color: AppColors.primary,
-                                ),
-                          ),
-                        ],
+                      const SizedBox(width: 8),
+                      _GenderChip(
+                        label: 'English',
+                        isSelected: settings.language == 'en',
+                        onTap: () => settings.setLanguage('en'),
                       ),
-                    ),
+                    ],
                   ),
                 ],
-              ],
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-        ],
+            const SizedBox(height: 16),
+  
+            // ─── Theme Toggle ───
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceDim.withAlpha(100),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'צבע רקע',
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                  // Toggle chips
+                  Row(
+                    children: [
+                      _GenderChip(
+                        label: 'חום',
+                        isSelected: !settings.isBlueTheme,
+                        activeColor: const Color(0xFFC9A96E),
+                        onTap: () => settings.setTheme(false),
+                      ),
+                      const SizedBox(width: 8),
+                      _GenderChip(
+                        label: 'תכלת',
+                        isSelected: settings.isBlueTheme,
+                        activeColor: const Color(0xFF4A90E2),
+                        onTap: () => settings.setTheme(true),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+  
+            // ─── Gender Toggle ───
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceDim.withAlpha(100),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    AppStrings.neutral('genderLabel'),
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                  // Toggle chips
+                  Row(
+                    children: [
+                      _GenderChip(
+                        label: 'זכר',
+                        isSelected: !settings.isFemale,
+                        onTap: () => settings.setGender(false),
+                      ),
+                      const SizedBox(width: 8),
+                      _GenderChip(
+                        label: 'נקבה',
+                        isSelected: settings.isFemale,
+                        onTap: () => settings.setGender(true),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+  
+            // ─── Daily Reminder Toggle ───
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceDim.withAlpha(100),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        AppStrings.neutral('reminderLabel'),
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                      Switch(
+                        value: settings.reminderEnabled,
+                        onChanged: (val) async {
+                          final success = await settings.setReminderEnabled(val);
+                          if (!success && val && context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('יש לאשר הרשאות התראה בהגדרות המכשיר'),
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+                          }
+                        },
+                        activeThumbColor: AppColors.surface,
+                        activeTrackColor: AppColors.primary,
+                        inactiveThumbColor: AppColors.surface,
+                        inactiveTrackColor: AppColors.divider,
+                        trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
+                      ),
+                    ],
+                  ),
+  
+                  // Time picker (visible when reminder is enabled)
+                  if (settings.reminderEnabled) ...[
+                    const SizedBox(height: 12),
+                    InkWell(
+                      onTap: () => _pickTime(context, settings),
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.divider),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              AppStrings.neutral('reminderTime'),
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            Text(
+                              settings.reminderTimeDisplay,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                    color: AppColors.primary,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }
@@ -233,8 +273,11 @@ class SettingsPanel extends StatelessWidget {
             ),
           ),
           child: Directionality(
-            textDirection: TextDirection.rtl,
-            child: child!,
+            textDirection: settings.language == 'en' ? TextDirection.ltr : TextDirection.rtl,
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+              child: child!,
+            ),
           ),
         );
       },

@@ -124,21 +124,23 @@ class _TogglePill extends StatelessWidget {
         curve: Curves.easeInOut,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : AppColors.surfaceDim,
+          color: isSelected ? AppColors.primary : AppColors.surfaceDim.withAlpha(200),
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.divider,
-            width: 1,
-          ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: AppColors.primary.withAlpha(30),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
+                    color: AppColors.primary.withAlpha(80),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
                   )
                 ]
-              : null,
+              : [
+                  BoxShadow(
+                    color: Colors.black.withAlpha(10), // Subtle inner shadow effect alternative
+                    blurRadius: 4,
+                    offset: const Offset(1, 1),
+                  )
+                ],
         ),
         child: Text(
           label,

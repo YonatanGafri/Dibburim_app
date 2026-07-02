@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 import 'app.dart';
 import 'services/storage_service.dart';
@@ -13,10 +14,13 @@ import 'providers/session_provider.dart';
 import 'providers/counter_provider.dart';
 
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await initializeDateFormatting('he_IL', null);
+  await dotenv.load(fileName: ".env");
 
   // Lock to portrait mode for a focused experience
   await SystemChrome.setPreferredOrientations([
@@ -48,13 +52,11 @@ void main() async {
   )..loadFromStorage();
 
   final sessionProvider = SessionProvider(
-    storage: storageService,
     supabase: supabaseService,
   )..loadFromStorage();
 
   final counterProvider = CounterProvider(
     supabase: supabaseService,
-    storage: storageService,
   )..loadCount();
 
   // ─── Run App ───
@@ -70,4 +72,6 @@ void main() async {
       child: const DiburimApp(),
     ),
   );
+
+  FlutterNativeSplash.remove();
 }

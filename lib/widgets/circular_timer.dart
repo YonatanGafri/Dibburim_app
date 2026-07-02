@@ -57,31 +57,43 @@ class _TimerPainter extends CustomPainter {
 
     // Background circle (track)
     final trackPaint = Paint()
-      ..color = AppColors.divider
+      ..color = AppColors.divider.withAlpha(100)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 6
+      ..strokeWidth = 14
       ..strokeCap = StrokeCap.round;
 
     canvas.drawCircle(center, radius, trackPaint);
 
     // Progress arc
     if (isActive || progress < 1.0) {
+      final rect = Rect.fromCircle(center: center, radius: radius);
+      
+      final gradient = SweepGradient(
+        startAngle: -math.pi / 2,
+        endAngle: 3 * math.pi / 2,
+        colors: [
+          AppColors.primary.withAlpha(100),
+          AppColors.primary,
+        ],
+        stops: const [0.0, 1.0],
+      );
+
       final progressPaint = Paint()
-        ..color = AppColors.primary
+        ..shader = gradient.createShader(rect)
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 6
+        ..strokeWidth = 14
         ..strokeCap = StrokeCap.round;
 
       // Add subtle glow during active session
       if (isActive) {
         final glowPaint = Paint()
-          ..color = AppColors.primary.withAlpha(30)
+          ..color = AppColors.primary.withAlpha(40)
           ..style = PaintingStyle.stroke
-          ..strokeWidth = 16
+          ..strokeWidth = 24
           ..strokeCap = StrokeCap.round
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
         canvas.drawArc(
-          Rect.fromCircle(center: center, radius: radius),
+          rect,
           -math.pi / 2,
           2 * math.pi * progress,
           false,
@@ -90,20 +102,35 @@ class _TimerPainter extends CustomPainter {
       }
 
       canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
+        rect,
         -math.pi / 2,
         2 * math.pi * progress,
         false,
         progressPaint,
       );
+
+      // Draw a glowing knob at the end of the progress
+      final angle = -math.pi / 2 + 2 * math.pi * progress;
+      final knobOffset = Offset(
+        center.dx + radius * math.cos(angle),
+        center.dy + radius * math.sin(angle),
+      );
+
+      final knobPaint = Paint()
+        ..color = AppColors.surface
+        ..style = PaintingStyle.fill;
+      
+      final knobShadow = Paint()
+        ..color = AppColors.primaryDark.withAlpha(150)
+        ..style = PaintingStyle.fill
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
+
+      canvas.drawCircle(knobOffset, 12, knobShadow);
+      canvas.drawCircle(knobOffset, 8, knobPaint);
     }
 
-    // Inner subtle circle
-    final innerPaint = Paint()
-      ..color = AppColors.surfaceDim.withAlpha(80)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
-    canvas.drawCircle(center, radius - 20, innerPaint);
+    // Inner subtle circle removed for a cleaner look
+
   }
 
   @override

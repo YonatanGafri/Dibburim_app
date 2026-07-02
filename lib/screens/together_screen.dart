@@ -5,6 +5,8 @@ import '../data/strings.dart';
 import '../providers/counter_provider.dart';
 import '../widgets/temple_illustration.dart';
 import '../widgets/info_modal.dart';
+import '../services/auth_service.dart';
+import 'auth_screen.dart';
 
 /// Tab 2: יחד (Together) — Community & Holy Temple Screen
 /// Shows the Temple illustration, global prayer counter, and info modal.
@@ -14,9 +16,23 @@ class TogetherScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final counterProvider = context.watch<CounterProvider>();
+    final authService = context.watch<AuthService>();
 
-    return SafeArea(
-      child: SingleChildScrollView(
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: Image.asset(
+            'assets/images/bg_sky.png',
+            fit: BoxFit.cover,
+          ),
+        ),
+        Positioned.fill(
+          child: Container(
+            color: AppColors.background.withAlpha(180),
+          ),
+        ),
+        SafeArea(
+          child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: 20),
         child: Column(
           children: [
@@ -103,6 +119,19 @@ class TogetherScreen extends StatelessWidget {
               onPressed: counterProvider.hasPrayedToday
                   ? null
                   : () {
+                      if (!authService.isLoggedIn) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('יש להתחבר לחשבון כדי להשתתף בתפילה על בית המקדש.'),
+                          ),
+                        );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const AuthScreen()),
+                        );
+                        return;
+                      }
+
                       counterProvider.increment();
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -118,16 +147,10 @@ class TogetherScreen extends StatelessWidget {
                 foregroundColor: Colors.white,
                 disabledBackgroundColor: Colors.grey.shade400,
                 disabledForegroundColor: Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                elevation: 0,
               ),
               child: Text(
                 counterProvider.hasPrayedToday
-                    ? 'התפללתי היום'
+                    ? AppStrings.neutral('togetherPrayedSuccess')
                     : AppStrings.neutral('templeButton'),
                 style: const TextStyle(
                   fontSize: 18,
@@ -137,36 +160,54 @@ class TogetherScreen extends StatelessWidget {
             ),
             const SizedBox(height: 40),
 
-            // Info (?) button
+            // Info (?) Card
             Center(
-              child: TextButton.icon(
-                onPressed: () => InfoModal.show(context),
-                icon: Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: AppColors.primary,
-                      width: 1.5,
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '?',
-                      style: TextStyle(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ),
+              child: Card(
+                elevation: 0,
+                color: AppColors.surfaceDim.withAlpha(150),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                label: Text(
-                  'מה המשמעות?',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.primary,
-                      ),
+                child: InkWell(
+                  onTap: () => InfoModal.show(context),
+                  borderRadius: BorderRadius.circular(16),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.primary,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Center(
+                            child: Text(
+                              '?',
+                              style: TextStyle(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'מה המשמעות?',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: AppColors.primaryDark,
+                                fontWeight: FontWeight.w500,
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -174,6 +215,8 @@ class TogetherScreen extends StatelessWidget {
           ],
         ),
       ),
+      ), // SafeArea
+      ],
     );
   }
 }

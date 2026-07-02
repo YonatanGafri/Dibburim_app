@@ -37,8 +37,14 @@ class _AuthScreenState extends State<AuthScreen> {
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
       if (mounted) {
+        String errorMsg = e.toString();
+        if (_isLogin && (errorMsg.contains('Invalid login credentials') || errorMsg.contains('invalid_credentials'))) {
+          errorMsg = 'המייל אינו רשום במערכת או שהסיסמה שגויה.';
+        } else {
+          errorMsg = 'שגיאה: $errorMsg';
+        }
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('שגיאה: ${e.toString()}')),
+          SnackBar(content: Text(errorMsg)),
         );
       }
     } finally {

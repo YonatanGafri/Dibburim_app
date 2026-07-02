@@ -10,6 +10,7 @@ class SettingsProvider extends ChangeNotifier {
   bool _isFemale = false;
   bool _reminderEnabled = false;
   bool _isBlueTheme = false;
+  String _language = 'he';
   int _reminderHour = 20;
   int _reminderMinute = 0;
 
@@ -23,6 +24,7 @@ class SettingsProvider extends ChangeNotifier {
   bool get isFemale => _isFemale;
   bool get reminderEnabled => _reminderEnabled;
   bool get isBlueTheme => _isBlueTheme;
+  String get language => _language;
   int get reminderHour => _reminderHour;
   int get reminderMinute => _reminderMinute;
 
@@ -34,6 +36,7 @@ class SettingsProvider extends ChangeNotifier {
     _isFemale = _storage.getIsFemale();
     _reminderEnabled = _storage.getReminderEnabled();
     _isBlueTheme = _storage.getIsBlueTheme();
+    _language = _storage.getLanguage();
     _reminderHour = _storage.getReminderHour();
     _reminderMinute = _storage.getReminderMinute();
     notifyListeners();
@@ -50,6 +53,13 @@ class SettingsProvider extends ChangeNotifier {
   Future<void> setTheme(bool isBlue) async {
     _isBlueTheme = isBlue;
     await _storage.setIsBlueTheme(isBlue);
+    notifyListeners();
+  }
+
+  /// Change the app language.
+  Future<void> setLanguage(String lang) async {
+    _language = lang;
+    await _storage.setLanguage(lang);
     notifyListeners();
   }
 

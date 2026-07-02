@@ -11,7 +11,8 @@ import 'screens/home_screen.dart';
 import 'screens/together_screen.dart';
 import 'screens/journey_screen.dart';
 import 'widgets/active_session_overlay.dart';
-
+import 'package:in_app_update/in_app_update.dart';
+import 'package:flutter/foundation.dart';
 /// Root application widget with bottom navigation and session overlay.
 class DiburimApp extends StatelessWidget {
   const DiburimApp({super.key});
@@ -20,16 +21,17 @@ class DiburimApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
     AppColors.isBlueTheme = settings.isBlueTheme;
+    AppStrings.currentLanguage = settings.language;
 
     return MaterialApp(
-      key: ValueKey(settings.isBlueTheme), // Force full app rebuild when theme changes
+      key: ValueKey('${settings.isBlueTheme}_${settings.language}'), // Force full app rebuild when theme or language changes
       title: 'דיבורים',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
-      // Force RTL directionality for Hebrew
+      // Set directionality based on language
       builder: (context, child) {
         return Directionality(
-          textDirection: TextDirection.rtl,
+          textDirection: settings.language == 'en' ? TextDirection.ltr : TextDirection.rtl,
           child: child!,
         );
       },
@@ -54,6 +56,43 @@ class _AppShellState extends State<_AppShell> {
     TogetherScreen(),
     JourneyScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _checkForUpdates();
+  }
+
+  Future<void> _checkForUpdates() async {
+    try {
+      final updateInfo = await InAppUpdate.checkForUpdate();
+      if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
+        if (updateInfo.flexibleUpdateAllowed) {
+          final result = await InAppUpdate.startFlexibleUpdate();
+          if (result == AppUpdateResult.success) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('עדכון חדש הורד בהצלחה. לחץ להתקנה.', textDirection: TextDirection.rtl),
+                  duration: const Duration(days: 1), // Stay until user installs
+                  action: SnackBarAction(
+                    label: 'התקן כעת',
+                    onPressed: () {
+                      InAppUpdate.completeFlexibleUpdate();
+                    },
+                  ),
+                ),
+              );
+            }
+          }
+        } else if (updateInfo.immediateUpdateAllowed) {
+          await InAppUpdate.performImmediateUpdate();
+        }
+      }
+    } catch (e) {
+      debugPrint('In-App Update error: $e');
+    }
+  }
 
   @override
   void dispose() {
@@ -95,15 +134,18 @@ class _AppShellState extends State<_AppShell> {
             onTap: (index) => setState(() => _currentIndex = index),
             items: [
               BottomNavigationBarItem(
-                icon: const Icon(Icons.person_rounded),
+                icon: const Icon(Icons.person_outline_rounded),
+                activeIcon: const Icon(Icons.person_rounded),
                 label: AppStrings.neutral('tab1'),
               ),
               BottomNavigationBarItem(
-                icon: const Icon(Icons.people_rounded),
+                icon: const Icon(Icons.people_outline_rounded),
+                activeIcon: const Icon(Icons.people_rounded),
                 label: AppStrings.neutral('tab2'),
               ),
               BottomNavigationBarItem(
-                icon: const Icon(Icons.insights_rounded),
+                icon: const Icon(Icons.insights_rounded), // Insights outline doesn't look much different, but we can stick to rounded
+                activeIcon: const Icon(Icons.insights_rounded),
                 label: AppStrings.neutral('tab3'),
               ),
             ],

@@ -1,7 +1,7 @@
 name: dibburim_app
 description: "Dibburim - A serene meditation and prayer timer app for daily Hitbodedut."
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.1.1+4
 
 environment:
   sdk: ^3.6.0
@@ -39,13 +39,16 @@ dependencies:
   # Hebrew Calendar & Jewish Law
   kosher_dart: ^2.0.18
   google_sign_in: ^6.2.1
+  flutter_timezone: ^5.1.0
+  flutter_native_splash: ^2.4.8
+  in_app_update: ^4.2.5
+  flutter_dotenv: ^6.0.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
   flutter_launcher_icons: ^0.14.2
-  flutter_native_splash: ^2.4.8
 
 flutter_launcher_icons:
   android: true
@@ -61,11 +64,12 @@ flutter:
   assets:
     - assets/audio/
     - assets/images/
+    - .env
 
 flutter_native_splash:
-  color: "#FDF5CD"
-  image: "assets/images/icon.png"
+  color: "#FDF8F0"
+  image: "assets/images/splash_icon.png"
   android_12:
-    color: "#FDF5CD"
-    image: "assets/images/icon.png"
+    color: "#FDF8F0"
+    image: "assets/images/splash_icon.png"
 

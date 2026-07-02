@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kosher_dart/kosher_dart.dart';
 import '../config/theme.dart';
+import '../data/strings.dart';
 import '../models/session.dart';
-
+import 'package:provider/provider.dart';
+import '../providers/session_provider.dart';
+import '../data/strings.dart';
 /// Monthly calendar view with Hebrew dates, Shabbat Parashat Hashavua, and hitbodedut details.
 class CalendarView extends StatefulWidget {
   final List<PrayerSession> sessions;
@@ -60,6 +63,79 @@ class _CalendarViewState extends State<CalendarView> {
     return day == now.day &&
         _currentMonth.month == now.month &&
         _currentMonth.year == now.year;
+  }
+
+  Future<void> _showAddSessionDialog(BuildContext context, DateTime date) async {
+    final TextEditingController minutesController = TextEditingController();
+    
+    final minutes = await showDialog<int>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(
+            AppStrings.neutral('calendarDidYouPray'),
+            style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'כמה דקות הקדשת להתבודדות ביום זה?',
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                controller: minutesController,
+                keyboardType: TextInputType.number,
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                  hintText: 'לדוגמה: 15',
+                  suffixText: 'דקות',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actionsAlignment: MainAxisAlignment.spaceEvenly,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('ביטול'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: () {
+                final val = int.tryParse(minutesController.text) ?? 0;
+                if (val > 0) {
+                  Navigator.pop(context, val);
+                }
+              },
+              child: const Text('עדכון'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (minutes != null && minutes > 0 && context.mounted) {
+      context.read<SessionProvider>().recordSession(minutes, date: date);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('הזמן עודכן בהצלחה!'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   Widget _buildSelectedDayDetails() {
@@ -173,16 +249,28 @@ class _CalendarViewState extends State<CalendarView> {
                 size: 20,
               ),
               const SizedBox(width: 10),
-              Text(
-                hasCompleted
-                    ? 'בוצעה התבודדות: $duration דקות'
-                    : 'לא בוצעה התבודדות ביום זה',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: hasCompleted ? FontWeight.w600 : FontWeight.w400,
-                  color: hasCompleted ? AppColors.textPrimary : AppColors.textSecondary,
+              Expanded(
+                child: Text(
+                  hasCompleted
+                      ? '${AppStrings.neutral('calendarSessionCompleted')} $duration '
+                      : AppStrings.neutral('calendarSessionNotCompleted'),
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: hasCompleted ? FontWeight.w600 : FontWeight.w400,
+                    color: hasCompleted ? AppColors.textPrimary : AppColors.textSecondary,
+                  ),
                 ),
               ),
+              if (!hasCompleted && !selectedDate.isAfter(DateTime.now()))
+                TextButton.icon(
+                  onPressed: () => _showAddSessionDialog(context, selectedDate),
+                  icon: const Icon(Icons.add_rounded, size: 16),
+                  label: const Text('השלמה'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                  ),
+                ),
             ],
           ),
         ],

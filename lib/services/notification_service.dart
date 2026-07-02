@@ -1,4 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz_data;
 import '../config/constants.dart';
@@ -12,6 +13,8 @@ class NotificationService {
   /// Initialize the notification system.
   Future<void> init() async {
     tz_data.initializeTimeZones();
+    final timeZoneInfo = await FlutterTimezone.getLocalTimezone();
+    tz.setLocalLocation(tz.getLocation(timeZoneInfo.identifier));
 
     const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -92,11 +95,13 @@ class NotificationService {
         AndroidFlutterLocalNotificationsPlugin>();
     
     // Request notification permission
-    final granted = await android?.requestNotificationsPermission() ?? false;
+    final bool? granted = await android?.requestNotificationsPermission();
     
     // Request exact alarms permission (required for Android 14+ to schedule alarms)
     await android?.requestExactAlarmsPermission();
     
-    return granted;
+    // If granted is null, it means the platform doesn't need to ask (e.g. Android < 13),
+    // so we can consider it granted.
+    return granted ?? true;
   }
 }

@@ -21,6 +21,16 @@ class StorageService {
     await _prefs.setBool(AppConstants.keyTheme, value);
   }
 
+  // ─── Language ───
+
+  String getLanguage() {
+    return _prefs.getString(AppConstants.keyLanguage) ?? 'he';
+  }
+
+  Future<void> setLanguage(String value) async {
+    await _prefs.setString(AppConstants.keyLanguage, value);
+  }
+
   // ─── Gender ───
 
   bool getIsFemale() {

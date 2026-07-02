@@ -7,6 +7,7 @@ import '../providers/settings_provider.dart';
 import '../widgets/circular_timer.dart';
 import '../widgets/duration_toggle.dart';
 import '../widgets/settings_panel.dart';
+import '../widgets/tips_modal.dart';
 import '../services/auth_service.dart';
 import 'auth_screen.dart';
 import 'profile_screen.dart';
@@ -22,11 +23,27 @@ class HomeScreen extends StatelessWidget {
     final settingsProvider = context.watch<SettingsProvider>();
     final authService = context.watch<AuthService>();
 
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          children: [
+    return Stack(
+      children: [
+        // Background image
+        Positioned.fill(
+          child: Image.asset(
+            'assets/images/bg_sky.png',
+            fit: BoxFit.cover,
+          ),
+        ),
+        // Soft overlay to maintain contrast
+        Positioned.fill(
+          child: Container(
+            color: AppColors.background.withAlpha(180),
+          ),
+        ),
+        // Main content
+        SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            children: [
             // Top bar with Logo, settings gear, and tab title
             Padding(
               padding: const EdgeInsets.only(top: 12),
@@ -138,24 +155,51 @@ class HomeScreen extends StatelessWidget {
             // Start button
             SizedBox(
               width: 220,
-              height: 56,
               child: ElevatedButton(
                 onPressed: () {
                   timerProvider.start();
                 },
-                style: ElevatedButton.styleFrom(
-                  elevation: 4,
-                  shadowColor: AppColors.primary.withAlpha(60),
-                ),
                 child: Text(
                   AppStrings.get('startButton',
                       isFemale: settingsProvider.isFemale),
-                  style: const TextStyle(fontSize: 18),
                 ),
               ),
             ),
 
             const Spacer(flex: 2),
+
+            // Tips Card
+            Center(
+              child: Card(
+                elevation: 0,
+                color: AppColors.surfaceDim.withAlpha(150),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: InkWell(
+                  onTap: () => TipsModal.show(context),
+                  borderRadius: BorderRadius.circular(16),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.lightbulb_outline_rounded, color: AppColors.primary, size: 22),
+                        const SizedBox(width: 8),
+                        Text(
+                          'טיפים ועצות',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: AppColors.primaryDark,
+                                fontWeight: FontWeight.w500,
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
 
             // Rabbi Nachman Quote
             Padding(
@@ -175,6 +219,8 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
+      ),
+      ],
     );
   }
 }

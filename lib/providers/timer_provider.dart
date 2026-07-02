@@ -10,11 +10,13 @@ class TimerProvider extends ChangeNotifier {
   bool _isActive = false;
   bool _isCompleted = false;
   bool _isOvertime = false;
+  bool _isPaused = false;
   int _overtimeSeconds = 0;
   int _currentPromptIndex = 0;
 
   Timer? _timer;
   DateTime? _startTime;
+  DateTime? _pauseTime;
   int _totalSessionSeconds = 0;
 
   // ─── Getters ───
@@ -23,6 +25,7 @@ class TimerProvider extends ChangeNotifier {
   bool get isActive => _isActive;
   bool get isCompleted => _isCompleted;
   bool get isOvertime => _isOvertime;
+  bool get isPaused => _isPaused;
   int get overtimeSeconds => _overtimeSeconds;
   int get currentPromptIndex => _currentPromptIndex;
 
@@ -69,10 +72,12 @@ class TimerProvider extends ChangeNotifier {
     _isActive = true;
     _isCompleted = false;
     _isOvertime = false;
+    _isPaused = false;
     _overtimeSeconds = 0;
     _totalSessionSeconds = _selectedDurationMinutes * 60;
     _remainingSeconds = _totalSessionSeconds;
     _startTime = DateTime.now();
+    _pauseTime = null;
     _currentPromptIndex = 0;
 
     _timer = Timer.periodic(const Duration(seconds: 1), _tick);
@@ -104,6 +109,26 @@ class TimerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void pause() {
+    if (!_isActive || _isPaused) return;
+    _isPaused = true;
+    _timer?.cancel();
+    _pauseTime = DateTime.now();
+    notifyListeners();
+  }
+
+  void resume() {
+    if (!_isActive || !_isPaused) return;
+    _isPaused = false;
+    if (_pauseTime != null && _startTime != null) {
+      final pausedDuration = DateTime.now().difference(_pauseTime!);
+      _startTime = _startTime!.add(pausedDuration);
+      _pauseTime = null;
+    }
+    _timer = Timer.periodic(const Duration(seconds: 1), _tick);
+    notifyListeners();
+  }
+
   /// Manually stop the timer and trigger completion (especially from overtime).
   void stopAndComplete() {
     _complete();
@@ -125,6 +150,8 @@ class TimerProvider extends ChangeNotifier {
     _isActive = false;
     _isCompleted = false;
     _isOvertime = false;
+    _isPaused = false;
+    _pauseTime = null;
     _overtimeSeconds = 0;
     _remainingSeconds = _selectedDurationMinutes * 60;
     _totalSessionSeconds = _remainingSeconds;
@@ -136,6 +163,8 @@ class TimerProvider extends ChangeNotifier {
   void resetCompletion() {
     _isCompleted = false;
     _isOvertime = false;
+    _isPaused = false;
+    _pauseTime = null;
     _overtimeSeconds = 0;
     _remainingSeconds = _selectedDurationMinutes * 60;
     _totalSessionSeconds = _remainingSeconds;
