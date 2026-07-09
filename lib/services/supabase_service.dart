@@ -50,18 +50,20 @@ class SupabaseService {
     });
   }
 
-  /// Save a user's personal session to the cloud.
-  Future<void> saveUserSession(PrayerSession session) async {
+  /// Save a user's personal session to the cloud. Returns true if successful.
+  Future<bool> saveUserSession(PrayerSession session) async {
     final user = Supabase.instance.client.auth.currentUser;
-    if (user == null) return;
+    if (user == null) return false;
     try {
       await Supabase.instance.client.from('user_sessions').insert({
         'user_id': user.id,
         'date': session.date.toIso8601String(),
         'duration_minutes': session.durationMinutes,
       });
+      return true;
     } catch (e) {
       debugPrint('Error saving session to cloud: $e');
+      return false;
     }
   }
 

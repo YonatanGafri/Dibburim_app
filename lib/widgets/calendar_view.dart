@@ -6,7 +6,6 @@ import '../data/strings.dart';
 import '../models/session.dart';
 import 'package:provider/provider.dart';
 import '../providers/session_provider.dart';
-import '../data/strings.dart';
 /// Monthly calendar view with Hebrew dates, Shabbat Parashat Hashavua, and hitbodedut details.
 class CalendarView extends StatefulWidget {
   final List<PrayerSession> sessions;

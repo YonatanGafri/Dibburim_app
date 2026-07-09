@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../config/theme.dart';
 import '../providers/timer_provider.dart';
-import '../providers/settings_provider.dart';
 import '../services/audio_service.dart';
 import 'circular_timer.dart';
 import 'completion_dialog.dart';

@@ -12,7 +12,6 @@ import 'screens/together_screen.dart';
 import 'screens/journey_screen.dart';
 import 'widgets/active_session_overlay.dart';
 import 'package:in_app_update/in_app_update.dart';
-import 'package:flutter/foundation.dart';
 /// Root application widget with bottom navigation and session overlay.
 class DiburimApp extends StatelessWidget {
   const DiburimApp({super.key});

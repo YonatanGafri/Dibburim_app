@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/session.dart';
 import '../services/streak_service.dart';
@@ -7,6 +9,7 @@ import '../services/supabase_service.dart';
 /// Manages prayer session history, streaks, and statistics.
 class SessionProvider extends ChangeNotifier {
   final SupabaseService _supabase;
+  static const String _storageKey = 'cached_sessions';
 
   List<PrayerSession> _sessions = [];
 
@@ -17,6 +20,7 @@ class SessionProvider extends ChangeNotifier {
     Supabase.instance.client.auth.onAuthStateChange.listen((data) {
       if (data.event == AuthChangeEvent.signedOut) {
         _sessions = [];
+        _clearLocalCache();
         notifyListeners();
       } else if (data.event == AuthChangeEvent.signedIn) {
         _syncAfterLogin();
@@ -24,20 +28,44 @@ class SessionProvider extends ChangeNotifier {
     });
   }
 
-  Future<void> _syncAfterLogin() async {
-    // 1. Upload any guest sessions to the cloud
-    for (var s in _sessions) {
-      await _supabase.saveUserSession(s);
-    }
-    
-    // 2. Fetch all cloud sessions
+  Future<void> _saveToLocalCache() async {
     try {
-      final cloudSessions = await _supabase.getUserSessions();
-      _sessions = cloudSessions;
-      notifyListeners();
+      final prefs = await SharedPreferences.getInstance();
+      final jsonList = _sessions.map((s) => s.toJson()).toList();
+      await prefs.setString(_storageKey, jsonEncode(jsonList));
     } catch (e) {
-      debugPrint('Sync after login error: $e');
+      debugPrint('Error saving to local cache: $e');
     }
+  }
+
+  Future<void> _loadFromLocalCache() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final rawData = prefs.getString(_storageKey);
+      if (rawData != null) {
+        final List<dynamic> decoded = jsonDecode(rawData);
+        _sessions = decoded
+            .map((json) => PrayerSession.fromJson(json as Map<String, dynamic>))
+            .toList();
+        _sessions.sort((a, b) => b.date.compareTo(a.date));
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Error loading from local cache: $e');
+    }
+  }
+
+  Future<void> _clearLocalCache() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_storageKey);
+    } catch (e) {
+      debugPrint('Error clearing local cache: $e');
+    }
+  }
+
+  Future<void> _syncAfterLogin() async {
+    await syncSessions();
   }
 
   // ─── Getters ───
@@ -59,35 +87,94 @@ class SessionProvider extends ChangeNotifier {
     return StreakService.getCompletedDates(_sessions, year, month);
   }
 
-  /// Load sessions from cloud.
+  /// Load sessions offline-first, then sync with cloud.
   Future<void> loadFromStorage() async {
-    // We strictly use cloud data for calendar to ensure reliability
+    await _loadFromLocalCache();
+
     if (Supabase.instance.client.auth.currentUser != null) {
-      try {
-        final cloudSessions = await _supabase.getUserSessions();
-        _sessions = cloudSessions;
-        notifyListeners();
-      } catch (e) {
-        debugPrint('Sync error: $e');
+      await syncSessions();
+    }
+  }
+
+  /// Main synchronization logic. Merges local and cloud data and uploads unsynced sessions.
+  Future<void> syncSessions() async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return;
+
+    try {
+      final cloudSessions = await _supabase.getUserSessions();
+
+      final Map<String, PrayerSession> merged = {};
+
+      // 1. Load local sessions first
+      for (var s in _sessions) {
+        final key = s.date.toIso8601String();
+        merged[key] = s;
       }
-    } else {
-      _sessions = [];
+
+      // 2. Merge cloud sessions (remote is always master, marked as synced)
+      for (var s in cloudSessions) {
+        final key = s.date.toIso8601String();
+        merged[key] = s.copyWith(isSynced: true);
+      }
+
+      _sessions = merged.values.toList();
+      _sessions.sort((a, b) => b.date.compareTo(a.date));
+      await _saveToLocalCache();
+      notifyListeners();
+
+      // 3. Upload any pending local sessions that aren't on the cloud
+      await _syncPendingSessions();
+    } catch (e) {
+      debugPrint('Sync error: $e');
+    }
+  }
+
+  Future<void> _syncPendingSessions() async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return;
+
+    bool hasChanges = false;
+    for (int i = 0; i < _sessions.length; i++) {
+      final s = _sessions[i];
+      if (!s.isSynced) {
+        final success = await _supabase.saveUserSession(s);
+        if (success) {
+          _sessions[i] = s.copyWith(isSynced: true);
+          hasChanges = true;
+        }
+      }
+    }
+
+    if (hasChanges) {
+      await _saveToLocalCache();
       notifyListeners();
     }
   }
 
-  /// Record a new completed session.
+  /// Record a new completed session. Saved locally first, then attempts upload.
   Future<void> recordSession(int durationMinutes, {DateTime? date}) async {
     final session = PrayerSession(
       date: date ?? DateTime.now(),
       durationMinutes: durationMinutes,
+      isSynced: false,
     );
-    
-    // Only save and track if user is logged in (cloud only)
+
     if (Supabase.instance.client.auth.currentUser != null) {
       _sessions.add(session);
-      await _supabase.saveUserSession(session);
+      _sessions.sort((a, b) => b.date.compareTo(a.date));
+      await _saveToLocalCache();
       notifyListeners();
+
+      final success = await _supabase.saveUserSession(session);
+      if (success) {
+        final idx = _sessions.indexWhere((s) => s.date == session.date);
+        if (idx != -1) {
+          _sessions[idx] = session.copyWith(isSynced: true);
+          await _saveToLocalCache();
+          notifyListeners();
+        }
+      }
     }
   }
 }
