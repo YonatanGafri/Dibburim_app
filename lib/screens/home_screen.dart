@@ -100,8 +100,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final settingsProvider = context.watch<SettingsProvider>();
     final authService = context.watch<AuthService>();
 
-    return Stack(
-      children: [
+    return SizedBox.expand(
+      child: Stack(
+        children: [
         // Background image
         Positioned.fill(
           child: Image.asset(
@@ -117,10 +118,18 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         // Main content
         SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              children: [
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight,
+                  ),
+                  child: IntrinsicHeight(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        children: [
                 // Top bar with Logo, settings gear, and tab title
                 Padding(
                   padding: const EdgeInsets.only(top: 12),
@@ -314,11 +323,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
 
                 const Spacer(flex: 2),
-              ],
-            ),
+                      ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
         ),
-      ],
+        ],
+      ),
     );
   }
 }

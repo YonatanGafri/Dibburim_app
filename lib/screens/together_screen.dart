@@ -18,8 +18,9 @@ class TogetherScreen extends StatelessWidget {
     final counterProvider = context.watch<CounterProvider>();
     final authService = context.watch<AuthService>();
 
-    return Stack(
-      children: [
+    return SizedBox.expand(
+      child: Stack(
+        children: [
         Positioned.fill(
           child: Image.asset(
             'assets/images/bg_sky.png',
@@ -216,7 +217,8 @@ class TogetherScreen extends StatelessWidget {
         ),
       ),
       ), // SafeArea
-      ],
+        ],
+      ),
     );
   }
 }

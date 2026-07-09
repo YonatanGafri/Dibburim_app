@@ -336,11 +336,9 @@ class _CalendarViewState extends State<CalendarView> {
 
               // Weekday headers (Sunday-Saturday in Hebrew)
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: const ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש']
                     .map(
-                      (day) => SizedBox(
-                        width: 36,
+                      (day) => Expanded(
                         child: Text(
                           day,
                           textAlign: TextAlign.center,
@@ -406,50 +404,53 @@ class _CalendarViewState extends State<CalendarView> {
                                 ? Border.all(color: AppColors.primary, width: 1.5)
                                 : null,
                       ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            '$day',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: isSelected
-                                  ? AppColors.textOnPrimary
-                                  : today
-                                      ? AppColors.primary
-                                      : AppColors.textPrimary,
-                              fontWeight: isSelected || today
-                                  ? FontWeight.w600
-                                  : FontWeight.w400,
-                              height: 1.1,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            hebrewDayStr,
-                            style: TextStyle(
-                              fontSize: 9,
-                              color: isSelected
-                                  ? AppColors.textOnPrimary.withAlpha(200)
-                                  : AppColors.textSecondary.withAlpha(180),
-                              fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
-                              height: 1.1,
-                            ),
-                          ),
-                          if (completed) ...[
-                            const SizedBox(height: 2),
-                            Container(
-                              width: 4,
-                              height: 4,
-                              decoration: BoxDecoration(
-                                color: isSelected ? Colors.white : AppColors.primary,
-                                shape: BoxShape.circle,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              '$day',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: isSelected
+                                    ? AppColors.textOnPrimary
+                                    : today
+                                        ? AppColors.primary
+                                        : AppColors.textPrimary,
+                                fontWeight: isSelected || today
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                                height: 1.1,
                               ),
                             ),
-                          ] else ...[
-                            const SizedBox(height: 6),
+                            const SizedBox(height: 2),
+                            Text(
+                              hebrewDayStr,
+                              style: TextStyle(
+                                fontSize: 9,
+                                color: isSelected
+                                    ? AppColors.textOnPrimary.withAlpha(200)
+                                    : AppColors.textSecondary.withAlpha(180),
+                                fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
+                                height: 1.1,
+                              ),
+                            ),
+                            if (completed) ...[
+                              const SizedBox(height: 2),
+                              Container(
+                                width: 4,
+                                height: 4,
+                                decoration: BoxDecoration(
+                                  color: isSelected ? Colors.white : AppColors.primary,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ] else ...[
+                              const SizedBox(height: 6),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
                     ),
                   );

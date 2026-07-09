@@ -27,12 +27,21 @@ class DiburimApp extends StatelessWidget {
       key: ValueKey('${settings.isBlueTheme}_${settings.language}'), // Force full app rebuild when theme or language changes
       title: 'דיבורים',
       debugShowCheckedModeBanner: false,
+      scrollBehavior: const MaterialScrollBehavior().copyWith(
+        physics: const ClampingScrollPhysics(),
+      ),
       theme: buildAppTheme(),
       // Set directionality based on language
       builder: (context, child) {
-        return Directionality(
-          textDirection: settings.language == 'en' ? TextDirection.ltr : TextDirection.rtl,
-          child: child!,
+        final textScaler = MediaQuery.textScalerOf(context);
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: textScaler.clamp(minScaleFactor: 1.0, maxScaleFactor: 1.3),
+          ),
+          child: Directionality(
+            textDirection: settings.language == 'en' ? TextDirection.ltr : TextDirection.rtl,
+            child: child!,
+          ),
         );
       },
       home: const _AppShell(),

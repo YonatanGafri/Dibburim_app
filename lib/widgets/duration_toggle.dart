@@ -13,21 +13,21 @@ class DurationToggle extends StatelessWidget {
     final timerProvider = context.watch<TimerProvider>();
     final selected = timerProvider.selectedDurationMinutes;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 12,
+      runSpacing: 12,
       children: [
         _TogglePill(
           label: AppStrings.neutral('minutes5'),
           isSelected: selected == 5,
           onTap: () => timerProvider.setDuration(5),
         ),
-        const SizedBox(width: 12),
         _TogglePill(
           label: AppStrings.neutral('minutes10'),
           isSelected: selected == 10,
           onTap: () => timerProvider.setDuration(10),
         ),
-        const SizedBox(width: 12),
         _TogglePill(
           label: AppStrings.neutral('customTime'),
           isSelected: selected != 5 && selected != 10,
