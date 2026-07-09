@@ -70,9 +70,9 @@ class AppStrings {
       en: 'You can speak to Hashem anywhere, but finding a quiet and calm place is recommended.',
     ),
     'tip5': const _LocalizedString(
-      heMale: 'ספר להשם על ההצלחות, השמחות, הזיכרונות, הכישלונות, האכזבות, החרדות, הפחדים, ובקש עזרה מהבורא.',
-      heFemale: 'ספרי להשם על ההצלחות, השמחות, הזיכרונות, הכישלונות, האכזבות, החרדות, הפחדים, ובקשי עזרה מהבורא.',
-      en: 'Tell Hashem about your successes, joys, memories, failures, disappointments, anxieties, and fears, and ask for His help.',
+      heMale: 'ספר להשם על ההצלחות, השמחות, הכישלונות, האכזבות, החרדות, הפחדים, ובקש עזרה מהבורא.',
+      heFemale: 'ספרי להשם על ההצלחות, השמחות, הכישלונות, האכזבות, החרדות, הפחדים, ובקשי עזרה מהבורא.',
+      en: 'Tell Hashem about your successes, joys, failures, disappointments, anxieties, and fears, and ask for His help.',
     ),
     'tip6': const _LocalizedString(
       heMale: 'אמור תודה להשם על כל הטוב שסובב אותך, תעשה חשבון נפש מה עליך לתקן ולדייק בעצמך, תתפלל ותבקש בקשות.',
