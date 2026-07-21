@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../services/auth_service.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -12,6 +13,7 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen> {
   bool _isLoading = false;
   bool _isLogin = true;
+  bool _acceptedPrivacyPolicy = false;
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -20,6 +22,13 @@ class _AuthScreenState extends State<AuthScreen> {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
     if (email.isEmpty || password.isEmpty) return;
+
+    if (!_isLogin && !_acceptedPrivacyPolicy) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('עליך לאשר את מדיניות הפרטיות ותנאי השימוש')),
+      );
+      return;
+    }
 
     setState(() => _isLoading = true);
     try {
@@ -53,6 +62,13 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _signInWithGoogle() async {
+    if (!_isLogin && !_acceptedPrivacyPolicy) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('עליך לאשר את מדיניות הפרטיות ותנאי השימוש')),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
     try {
       final authService = context.read<AuthService>();
@@ -98,6 +114,31 @@ class _AuthScreenState extends State<AuthScreen> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _showPrivacyPolicyDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('מדיניות פרטיות', textAlign: TextAlign.right),
+        content: const SingleChildScrollView(
+          child: Text(
+            'אפליקציית "דיבורים" מכבדת את פרטיותך.\n\n'
+            '• פרטי התחברות: נשמרים כתובת המייל, השם, ותמונת הפרופיל במקרה של התחברות מגוגל.\n'
+            '• נתוני שימוש: אנו שומרים את זמני ותאריכי ההתבודדות בלבד כדי לאפשר סנכרון בין מכשירים.\n\n'
+            'המידע אינו מועבר לצד שלישי ואינו משמש לפרסום.\n\n'
+            'ניתן למחוק את החשבון ואת כל הנתונים דרך מסך ההגדרות באפליקציה, או בפנייה ל: info@dibburim.com\n',
+            textDirection: TextDirection.rtl,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('סגור'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -151,7 +192,7 @@ class _AuthScreenState extends State<AuthScreen> {
               ElevatedButton.icon(
                 onPressed: _signInWithGoogle,
                 icon: const Icon(Icons.g_mobiledata, size: 30),
-                label: const Text('התחבר עם Google'),
+                label: Text(_isLogin ? 'התחבר עם Google' : 'הרשם עם Google'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: Colors.black87,
@@ -159,10 +200,60 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'בהרשמה אתה מסכים למדיניות הפרטיות ותנאי השימוש שלנו.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: Colors.grey),
+              if (!_isLogin)
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Checkbox(
+                      value: _acceptedPrivacyPolicy,
+                      onChanged: (val) {
+                        setState(() {
+                          _acceptedPrivacyPolicy = val ?? false;
+                        });
+                      },
+                    ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: _showPrivacyPolicyDialog,
+                        child: const Text(
+                          'אני מסכים למדיניות הפרטיות ותנאי השימוש',
+                          style: TextStyle(
+                            fontSize: 14,
+                            decoration: TextDecoration.underline,
+                            color: Colors.blue,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              else
+                GestureDetector(
+                  onTap: _showPrivacyPolicyDialog,
+                  child: const Text(
+                    'מדיניות פרטיות ותנאי שימוש',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      decoration: TextDecoration.underline,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 24),
+              FutureBuilder<PackageInfo>(
+                future: PackageInfo.fromPlatform(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    final info = snapshot.data!;
+                    return Text(
+                      'Version: ${info.version} (${info.buildNumber})',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 10, color: Colors.grey),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
               ),
             ],
           ],

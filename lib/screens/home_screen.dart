@@ -99,6 +99,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final timerProvider = context.watch<TimerProvider>();
     final settingsProvider = context.watch<SettingsProvider>();
     final authService = context.watch<AuthService>();
+    final user = authService.currentUser;
+    final userName = user?.userMetadata?['name'] ?? user?.userMetadata?['full_name'] ?? user?.email?.split('@').first ?? '';
 
     return SizedBox.expand(
       child: Stack(
@@ -175,6 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 fontWeight: FontWeight.w400,
                               ),
                             ),
+
                             const SizedBox(height: 16),
                             Text(
                               AppStrings.neutral('tab1'),

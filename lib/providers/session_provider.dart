@@ -177,4 +177,47 @@ class SessionProvider extends ChangeNotifier {
       }
     }
   }
+
+  /// Update or delete a session for a specific date (e.g. from the calendar).
+  Future<void> updateSessionForDate(DateTime date, int newDurationMinutes) async {
+    // 1. Remove from local list all sessions that match the year, month, day
+    _sessions.removeWhere((s) =>
+        s.date.year == date.year &&
+        s.date.month == date.month &&
+        s.date.day == date.day);
+
+    // 2. Add the new session if > 0
+    if (newDurationMinutes > 0) {
+      final session = PrayerSession(
+        date: DateTime(date.year, date.month, date.day, 12, 0), // Default to midday
+        durationMinutes: newDurationMinutes,
+        isSynced: false,
+      );
+      _sessions.add(session);
+    }
+
+    _sessions.sort((a, b) => b.date.compareTo(a.date));
+    await _saveToLocalCache();
+    notifyListeners();
+
+    // 3. Update cloud
+    if (Supabase.instance.client.auth.currentUser != null) {
+      final deleted = await _supabase.deleteUserSessionsOnDate(date);
+      if (deleted && newDurationMinutes > 0) {
+        final idx = _sessions.indexWhere((s) =>
+            s.date.year == date.year &&
+            s.date.month == date.month &&
+            s.date.day == date.day);
+
+        if (idx != -1) {
+          final success = await _supabase.saveUserSession(_sessions[idx]);
+          if (success) {
+            _sessions[idx] = _sessions[idx].copyWith(isSynced: true);
+            await _saveToLocalCache();
+            notifyListeners();
+          }
+        }
+      }
+    }
+  }
 }

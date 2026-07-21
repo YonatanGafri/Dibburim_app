@@ -13,6 +13,7 @@ class SettingsProvider extends ChangeNotifier {
   String _language = 'he';
   int _reminderHour = 20;
   int _reminderMinute = 0;
+  List<int> _reminderDays = [1, 2, 3, 4, 5, 6, 7];
 
   SettingsProvider({
     required StorageService storage,
@@ -27,6 +28,7 @@ class SettingsProvider extends ChangeNotifier {
   String get language => _language;
   int get reminderHour => _reminderHour;
   int get reminderMinute => _reminderMinute;
+  List<int> get reminderDays => _reminderDays;
 
   String get reminderTimeDisplay =>
       '${_reminderHour.toString().padLeft(2, '0')}:${_reminderMinute.toString().padLeft(2, '0')}';
@@ -39,6 +41,7 @@ class SettingsProvider extends ChangeNotifier {
     _language = _storage.getLanguage();
     _reminderHour = _storage.getReminderHour();
     _reminderMinute = _storage.getReminderMinute();
+    _reminderDays = _storage.getReminderDays();
     notifyListeners();
   }
 
@@ -63,37 +66,67 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Enable/disable the daily reminder.
-  Future<bool> setReminderEnabled(bool enabled) async {
+  /// Enable/disable the daily reminder. Returns null if success, or error string if failed.
+  Future<String?> setReminderEnabled(bool enabled) async {
     if (enabled) {
       final granted = await _notifications.requestPermissions();
       if (!granted) {
-        return false;
+        return 'Notification permission not granted';
       }
     }
 
     _reminderEnabled = enabled;
+    notifyListeners(); // Update UI immediately
+
     await _storage.setReminderEnabled(enabled);
 
     if (enabled) {
-      await _notifications.scheduleDailyReminder(_reminderHour, _reminderMinute);
+      try {
+        await _notifications.scheduleDailyReminder(_reminderHour, _reminderMinute, _reminderDays);
+      } catch (e) {
+        // Revert on failure (e.g., exact alarm permission denied)
+        _reminderEnabled = false;
+        await _storage.setReminderEnabled(false);
+        notifyListeners();
+        return e.toString();
+      }
     } else {
       await _notifications.cancelReminder();
     }
-    notifyListeners();
-    return true;
+    return null;
   }
 
   /// Update the reminder time.
   Future<void> setReminderTime(int hour, int minute) async {
     _reminderHour = hour;
     _reminderMinute = minute;
+    notifyListeners(); // Update UI immediately
+
     await _storage.setReminderHour(hour);
     await _storage.setReminderMinute(minute);
 
     if (_reminderEnabled) {
-      await _notifications.scheduleDailyReminder(hour, minute);
+      try {
+        await _notifications.scheduleDailyReminder(hour, minute, _reminderDays);
+      } catch (e) {
+        debugPrint('Failed to reschedule reminder: $e');
+      }
     }
-    notifyListeners();
+  }
+
+  /// Update the reminder days.
+  Future<void> setReminderDays(List<int> days) async {
+    _reminderDays = days;
+    notifyListeners(); // Update UI immediately
+
+    await _storage.setReminderDays(days);
+
+    if (_reminderEnabled) {
+      try {
+        await _notifications.scheduleDailyReminder(_reminderHour, _reminderMinute, _reminderDays);
+      } catch (e) {
+        debugPrint('Failed to reschedule reminder days: $e');
+      }
+    }
   }
 }

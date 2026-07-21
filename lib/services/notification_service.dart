@@ -40,25 +40,14 @@ class NotificationService {
         ?.createNotificationChannel(channel);
   }
 
-  /// Schedule a repeating daily notification at the given hour:minute.
-  Future<void> scheduleDailyReminder(int hour, int minute) async {
+  /// Schedule a repeating daily notification at the given hour:minute for specific days.
+  Future<void> scheduleDailyReminder(int hour, int minute, List<int> days) async {
     // Cancel any existing reminders first
     await cancelReminder();
 
-    final now = tz.TZDateTime.now(tz.local);
-    var scheduledDate = tz.TZDateTime(
-      tz.local,
-      now.year,
-      now.month,
-      now.day,
-      hour,
-      minute,
-    );
+    if (days.isEmpty) return;
 
-    // If the time has already passed today, schedule for tomorrow
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
-    }
+    final now = tz.TZDateTime.now(tz.local);
 
     const androidDetails = AndroidNotificationDetails(
       AppConstants.notificationChannelId,
@@ -72,21 +61,44 @@ class NotificationService {
 
     const details = NotificationDetails(android: androidDetails);
 
-    await _plugin.zonedSchedule(
-      0, // Notification ID
-      AppStrings.neutral('reminderNotificationTitle'),
-      AppStrings.neutral('reminderNotificationBody'),
-      scheduledDate,
-      details,
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time, // Repeat daily
-    );
+    for (final day in days) {
+      var scheduledDate = tz.TZDateTime(
+        tz.local,
+        now.year,
+        now.month,
+        now.day,
+        hour,
+        minute,
+      );
+
+      // If the time has already passed today, schedule for tomorrow
+      if (scheduledDate.isBefore(now)) {
+        scheduledDate = scheduledDate.add(const Duration(days: 1));
+      }
+
+      // Advance to the requested day of the week
+      while (scheduledDate.weekday != day) {
+        scheduledDate = scheduledDate.add(const Duration(days: 1));
+      }
+
+      await _plugin.zonedSchedule(
+        day, // Notification ID based on day (1-7)
+        AppStrings.neutral('reminderNotificationTitle'),
+        AppStrings.neutral('reminderNotificationBody'),
+        scheduledDate,
+        details,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime, // Repeat weekly
+      );
+    }
   }
 
   /// Cancel the daily reminder.
   Future<void> cancelReminder() async {
-    await _plugin.cancel(0);
+    for (int i = 0; i <= 7; i++) {
+      await _plugin.cancel(i);
+    }
   }
 
   /// Request notification permissions (Android 13+).
@@ -94,14 +106,12 @@ class NotificationService {
     final android = _plugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
     
-    // Request notification permission
+    // Request notification permission (Android 13+)
     final bool? granted = await android?.requestNotificationsPermission();
     
-    // Request exact alarms permission (required for Android 14+ to schedule alarms)
-    await android?.requestExactAlarmsPermission();
+    // We use inexact alarms, so we do NOT need to request exact alarms permission
+    // which throws the user out to the settings app on Android 14+.
     
-    // If granted is null, it means the platform doesn't need to ask (e.g. Android < 13),
-    // so we can consider it granted.
     return granted ?? true;
   }
 }

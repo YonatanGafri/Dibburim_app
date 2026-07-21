@@ -67,6 +67,28 @@ class SupabaseService {
     }
   }
 
+  /// Delete all sessions for the user on a specific date.
+  Future<bool> deleteUserSessionsOnDate(DateTime date) async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return false;
+
+    final startOfDay = DateTime(date.year, date.month, date.day).toIso8601String();
+    final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59, 999).toIso8601String();
+
+    try {
+      await Supabase.instance.client
+          .from('user_sessions')
+          .delete()
+          .eq('user_id', user.id)
+          .gte('date', startOfDay)
+          .lte('date', endOfDay);
+      return true;
+    } catch (e) {
+      debugPrint('Error deleting sessions: $e');
+      return false;
+    }
+  }
+
   /// Fetch user's personal sessions from the cloud.
   Future<List<PrayerSession>> getUserSessions() async {
     final user = Supabase.instance.client.auth.currentUser;

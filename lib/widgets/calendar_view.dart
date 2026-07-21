@@ -64,8 +64,8 @@ class _CalendarViewState extends State<CalendarView> {
         _currentMonth.year == now.year;
   }
 
-  Future<void> _showAddSessionDialog(BuildContext context, DateTime date) async {
-    final TextEditingController minutesController = TextEditingController();
+  Future<void> _showAddSessionDialog(BuildContext context, DateTime date, {int currentDuration = 0, bool isAdding = false}) async {
+    final TextEditingController minutesController = TextEditingController(text: (!isAdding && currentDuration > 0) ? currentDuration.toString() : '');
     
     final minutes = await showDialog<int>(
       context: context,
@@ -80,8 +80,8 @@ class _CalendarViewState extends State<CalendarView> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'כמה דקות הקדשת להתבודדות ביום זה?',
+              Text(
+                isAdding ? 'כמה דקות נוספות היית רוצה להוסיף ליום זה?' : 'מה זמן ההתבודדות הכולל (בדקות) שהיה ביום זה?',
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
@@ -90,7 +90,7 @@ class _CalendarViewState extends State<CalendarView> {
                 keyboardType: TextInputType.number,
                 textAlign: TextAlign.center,
                 decoration: InputDecoration(
-                  hintText: 'לדוגמה: 15',
+                  hintText: isAdding ? null : 'לדוגמה: 15',
                   suffixText: 'דקות',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -114,26 +114,35 @@ class _CalendarViewState extends State<CalendarView> {
                 ),
               ),
               onPressed: () {
-                final val = int.tryParse(minutesController.text) ?? 0;
-                if (val > 0) {
+                final val = int.tryParse(minutesController.text);
+                if (val != null && val >= 0) {
                   Navigator.pop(context, val);
                 }
               },
-              child: const Text('עדכון'),
+              child: const Text('שמירה'),
             ),
           ],
         );
       },
     );
 
-    if (minutes != null && minutes > 0 && context.mounted) {
-      context.read<SessionProvider>().recordSession(minutes, date: date);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('הזמן עודכן בהצלחה!'),
-          duration: Duration(seconds: 2),
-        ),
-      );
+    if (minutes != null && context.mounted) {
+      if (isAdding) {
+        if (minutes > 0) {
+          context.read<SessionProvider>().recordSession(minutes, date: date);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('הזמן התווסף בהצלחה!'), duration: Duration(seconds: 2)),
+          );
+        }
+      } else {
+        context.read<SessionProvider>().updateSessionForDate(date, minutes);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(minutes > 0 ? 'הזמן תוקן בהצלחה!' : 'הסשן נמחק בהצלחה!'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
     }
   }
 
@@ -260,16 +269,44 @@ class _CalendarViewState extends State<CalendarView> {
                   ),
                 ),
               ),
-              if (!hasCompleted && !selectedDate.isAfter(DateTime.now()))
-                TextButton.icon(
-                  onPressed: () => _showAddSessionDialog(context, selectedDate),
-                  icon: const Icon(Icons.add_rounded, size: 16),
-                  label: const Text('השלמה'),
-                  style: TextButton.styleFrom(
-                    foregroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
+              if (!selectedDate.isAfter(DateTime.now()))
+                if (hasCompleted)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextButton.icon(
+                        onPressed: () => _showAddSessionDialog(context, selectedDate, isAdding: true),
+                        icon: const Icon(Icons.add_rounded, size: 16),
+                        label: const Text('הוספת זמן'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.primary,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          minimumSize: const Size(0, 32),
+                        ),
+                      ),
+                      TextButton.icon(
+                        onPressed: () => _showAddSessionDialog(context, selectedDate, currentDuration: duration, isAdding: false),
+                        icon: const Icon(Icons.edit_rounded, size: 16),
+                        label: const Text('תיקון זמן'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.textSecondary,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          minimumSize: const Size(0, 32),
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  TextButton.icon(
+                    onPressed: () => _showAddSessionDialog(context, selectedDate, isAdding: true),
+                    icon: const Icon(Icons.add_rounded, size: 16),
+                    label: const Text('השלמה'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.primary,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                    ),
                   ),
-                ),
             ],
           ),
         ],

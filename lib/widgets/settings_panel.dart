@@ -186,12 +186,12 @@ class SettingsPanel extends StatelessWidget {
                       Switch(
                         value: settings.reminderEnabled,
                         onChanged: (val) async {
-                          final success = await settings.setReminderEnabled(val);
-                          if (!success && val && context.mounted) {
+                          final errorMsg = await settings.setReminderEnabled(val);
+                          if (errorMsg != null && val && context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('יש לאשר הרשאות התראה בהגדרות המכשיר'),
-                                duration: Duration(seconds: 3),
+                              SnackBar(
+                                content: Text('שגיאה: $errorMsg'),
+                                duration: const Duration(seconds: 8),
                               ),
                             );
                           }
@@ -239,6 +239,8 @@ class SettingsPanel extends StatelessWidget {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 12),
+                    _DaySelection(settings: settings),
                   ],
                 ],
               ),
@@ -329,3 +331,69 @@ class _GenderChip extends StatelessWidget {
     );
   }
 }
+
+class _DaySelection extends StatelessWidget {
+  final SettingsProvider settings;
+
+  const _DaySelection({required this.settings});
+
+  @override
+  Widget build(BuildContext context) {
+    // Days representation: 1=Monday, ..., 7=Sunday.
+    // Israeli week starts on Sunday (7), then Monday (1), etc.
+    final days = [
+      {'id': 7, 'label': 'א'},
+      {'id': 1, 'label': 'ב'},
+      {'id': 2, 'label': 'ג'},
+      {'id': 3, 'label': 'ד'},
+      {'id': 4, 'label': 'ה'},
+      {'id': 5, 'label': 'ו'},
+      {'id': 6, 'label': 'ש'},
+    ];
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      alignment: WrapAlignment.center,
+      children: days.map((dayData) {
+        final dayId = dayData['id'] as int;
+        final label = dayData['label'] as String;
+        final isSelected = settings.reminderDays.contains(dayId);
+
+        return GestureDetector(
+          onTap: () {
+            final newDays = List<int>.from(settings.reminderDays);
+            if (isSelected) {
+              newDays.remove(dayId);
+            } else {
+              newDays.add(dayId);
+            }
+            settings.setReminderDays(newDays);
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            width: 36,
+            height: 36,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: isSelected ? AppColors.primary : AppColors.primary.withAlpha(30),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isSelected ? AppColors.primary : AppColors.primary.withAlpha(80),
+              ),
+            ),
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: isSelected ? AppColors.textOnPrimary : AppColors.primary,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+

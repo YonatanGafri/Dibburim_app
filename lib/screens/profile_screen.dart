@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../data/strings.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -121,6 +122,22 @@ class ProfileScreen extends StatelessWidget {
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 12, color: Colors.grey),
           ),
+          const SizedBox(height: 40),
+          FutureBuilder<PackageInfo>(
+            future: PackageInfo.fromPlatform(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                final info = snapshot.data!;
+                return Text(
+                  'Version: ${info.version} (${info.buildNumber})',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 10, color: Colors.grey),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+          const SizedBox(height: 20),
         ],
       ),
     );

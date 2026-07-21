@@ -67,6 +67,17 @@ class StorageService {
     await _prefs.setInt(AppConstants.keyReminderMinute, value);
   }
 
+  List<int> getReminderDays() {
+    final raw = _prefs.getStringList(AppConstants.keyReminderDays);
+    if (raw == null || raw.isEmpty) return [1, 2, 3, 4, 5, 6, 7]; // Default all days
+    return raw.map(int.parse).toList();
+  }
+
+  Future<void> setReminderDays(List<int> days) async {
+    final strList = days.map((e) => e.toString()).toList();
+    await _prefs.setStringList(AppConstants.keyReminderDays, strList);
+  }
+
   // ─── Sessions ───
 
   List<PrayerSession> getSessions() {

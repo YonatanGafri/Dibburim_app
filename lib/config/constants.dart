@@ -22,6 +22,7 @@ class AppConstants {
   static const String keyTheme = 'app_theme_color';
   static const String keyLanguage = 'app_language';
   static const String keyLastTemplePrayerDate = 'last_temple_prayer_date';
+  static const String keyReminderDays = 'reminder_days';
 
   /// Audio asset paths.
   static const String ambientAudioPath = 'audio/ambient.mp3';
